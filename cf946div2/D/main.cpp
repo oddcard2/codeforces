@@ -1,14 +1,13 @@
 #include "bits/stdc++.h"
-//#include <string>
-//#include <iostream>
-//#include <fstream>
-//#include <sstream>
-//#include <vector>
-//#include <memory>
+
 
 using namespace std;
 
-string input = "2 5 0\n01001\n10110";
+//string input = "2 5 0\n01001\n10110";
+
+string input = "2 5 1\n01001\n10110";
+
+//#define ONLINE_JUDGE
 
 int main(int argc, char **argv) {
 	cout.sync_with_stdio(false);
@@ -24,7 +23,8 @@ int main(int argc, char **argv) {
 	else if (!input.empty()) {
 		pinp = new istringstream(input);
 		stream.reset(pinp);
-	} else
+	}
+	else
 #endif	
 	{
 		pinp = &cin;
@@ -38,95 +38,70 @@ int main(int argc, char **argv) {
 	std::getline(icp, line); //current line
 
 	vector<vector<char> > days;
+	vector<int> hours(n);
 	days.resize(n);
-	int i = 0;
-	while (std::getline(icp, line)) {
-		cout << line << endl;
+
+	for (int i = 0; i < n; i++) {
+		std::getline(icp, line);
+		//cout << line << endl;
 
 		days[i].resize(m);
 		transform(begin(line), end(line), begin(days[i]), [](const char s) { return (char)(s - '0'); });
-		i++;
+		hours[i] = std::accumulate(begin(days[i]), end(days[i]), 0);
 	}
-	
-	//int max_ones[500];
-	struct item
-	{
-		int before;
-		int count;
-		int after;
+
+	vector<int> cost(m);
+
+	auto calc_costs = [&](int d) {
+		cost.resize(hours[d] + 1);
+		fill(begin(cost), end(cost), 1000);
+		cost[0] = 0;
+		for (int i = 0; i < m; i++) {
+			int ones = 0;
+			int len = 0;
+
+			for (int j = i; j < m; j++) {
+				len++;
+				ones += days[d][j];
+				cost[ones] = min(cost[ones], len);
+			}
+		}
+		return hours[d];
 	};
-	int days_dp[500];
 
+	int total_hours = std::accumulate(begin(hours), end(hours), 0);
+	vector<int> dp(total_hours + 1, 100000000);
+	dp[0] = 0;
 
+	int h_sum = 0;
+	for (int i = 0; i < n; i++) //days
+	{
+		int max_hours = calc_costs(i);
+		if (!max_hours)
+			continue;
 
-
-	memset(&days_dp, 0, sizeof(int)*k); //0-k skips
-
-	//compress days
-	int total_ones_max = 0;
-	for (int i = 0; i < n; i++) {
-		int max_ones = 0;
-		item day_state[500];
-		memset(&day_state, 0, sizeof(item)*m);
-
-		int items = 0;
-		int ones_sum = 0;
-		int prev = 1;
-		int prev_zeros = 0;
-
-		int start = 0;
-		for (start = 0; start < m && days[i][start] == 0; start++) {
-		}
-		day_state[0].before = start;
-		for (int j = start; j < m; j++) {
-			if (days[i][j] == 0) {
-				if (prev == 1) {
-					prev_zeros = 0;
-					if (day_state[items].count > max_ones)
-						max_ones = day_state[items].count;
-				}
-				prev_zeros++;
-				prev = 0;
-			}
-			else { //1
-				if (prev == 0) {
-					//add new item if required
-					day_state[items++].after = prev_zeros;
-					day_state[items].before = prev_zeros;
-					prev_zeros = 0;
-				}
-
-				day_state[items].count++;
-				ones_sum++;
-				prev = 1;
+		int e = h_sum + max_hours;
+		int s = max(1, h_sum + max_hours - k - 1);
+		for (int k = e; k >= s; --k)
+		{
+			int min_add = min(max_hours, k);
+			for (int j = min_add; j > 0 && k - j >= 0 && k - j <= h_sum; --j)
+			{
+				dp[k] = min(dp[k], dp[k - j] + cost[j]);
 			}
 		}
-		day_state[items].after = prev_zeros;
-		if (day_state[items].count > max_ones)
-			max_ones = day_state[items].count;
-		
-		//DP
-		//1. bymax ones
-		if (total_ones_max < max_ones) {
-			for (int j = total_ones_max + 1; j < max_ones; j++) {
-				int skips = ones_sum - j;
-
-				//skipped before
-				for (int s=0;s<k-j;s++){
-					if (skips <= k && days_dp)
-				}
-				
-			}
-			total_ones_max = max_ones;
-		}
-		//2. by items
-		//seq ends on end of item
-		//
-		for (int j = 1; j < items; j++) {
-
-		}
-
+		h_sum += max_hours;
 	}
 
+	int ans = 10000000;
+	//for (int i = total_hours; i >= total_hours - k; --i) {
+	//	ans = min(ans, dp[i]);
+	//}
+
+	if (k >= h_sum)
+		ans = 0;
+	else
+		for_each(end(dp) - k - 1, end(dp), [&](int v) { ans = min(ans, v); });
+	cout << ans;
 	return 0;
 }
