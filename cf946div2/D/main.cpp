@@ -50,6 +50,13 @@ int main(int argc, char **argv) {
 		hours[i] = std::accumulate(begin(days[i]), end(days[i]), 0);
 	}
 
+	int total_hours = std::accumulate(begin(hours), end(hours), 0);
+
+	if (k >= total_hours) {
+		cout << 0;
+		return 0;
+	}
+
 	vector<int> cost(m);
 
 	auto calc_costs = [&](int d) {
@@ -69,7 +76,7 @@ int main(int argc, char **argv) {
 		return hours[d];
 	};
 
-	int total_hours = std::accumulate(begin(hours), end(hours), 0);
+
 	vector<int> dp(total_hours + 1, 100000000);
 	dp[0] = 0;
 
@@ -98,10 +105,8 @@ int main(int argc, char **argv) {
 	//	ans = min(ans, dp[i]);
 	//}
 
-	if (k >= h_sum)
-		ans = 0;
-	else
-		for_each(end(dp) - k - 1, end(dp), [&](int v) { ans = min(ans, v); });
+
+	for_each(end(dp) - k - 1, end(dp), [&](int v) { ans = min(ans, v); });
 	cout << ans;
 	return 0;
 }
