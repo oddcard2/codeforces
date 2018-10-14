@@ -101,7 +101,6 @@ int main(int argc, char **argv) {
 		}
 	}
 	sort(begin(num_vec), end(num_vec), [](const pair<int, int>& a, const pair<int, int>& b) { return a.first < b.first;  });
-	//reverse(begin(num_vec), end(num_vec));
 
 	vector<pair<int, int> > mm; //prime, number
 
@@ -124,19 +123,7 @@ int main(int argc, char **argv) {
 						prime[j] = 0;
 				}
 		}
-#if 0
-	for (int i = 2; i <= m; ++i) {
-		if (prime[i] & 1) {
-			if (prime[i] & 2) {
-				mm.push_back(make_pair(i, i));
-				prime[i] = 2;
-			} else
-				prime[i] = 0;
-		}
-	}
-#endif
 
-	//vector<pair<int, int> > stat(mm.size());
 	sort(begin(mm), end(mm), [](const pair<int, int>& a, const pair<int, int>& b) { return a.second < b.second;  });
 
 	unordered_map<int, int> pstat;
@@ -154,9 +141,6 @@ int main(int argc, char **argv) {
 	}
 
 	sort(begin(stat), end(stat), [](const pair<int, int>& a, const pair<int, int>& b) { return a.second < b.second;  });
-
-	//calcs NOD
-
 
 	for (auto it = stat.rbegin(); it != stat.rend(); ++it) {
 		if (it->second < n) {
