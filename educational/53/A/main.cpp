@@ -2,7 +2,8 @@
 
 using namespace std;
 
-string input = "";
+string input = "10\n"\
+"codeforces";
 
 int main(int argc, char **argv) {
 	cout.sync_with_stdio(false);
@@ -24,6 +25,27 @@ int main(int argc, char **argv) {
 		pinp = &cin;
 	}
 	istream &icp = *pinp;
+
+	int n;
+	icp >> n;
+	if (n == 1) {
+		cout << "NO";
+		return 0;
+	}
+	string str;
+	getline(icp, str);
+	getline(icp, str);
+
+	char prev = '\0';
+	for (auto c : str) {
+		if (prev != '\0' && c != prev) {
+			cout << "YES" << endl;
+			cout << prev << c;
+			return 0;
+		}
+		prev = c;
+	}
+	cout << "NO";
 	
 	return 0;
 }

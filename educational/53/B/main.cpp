@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "bits/stdc++.h"
 
 using namespace std;
@@ -5,25 +6,43 @@ using namespace std;
 string input = "";
 
 int main(int argc, char **argv) {
-	cout.sync_with_stdio(false);
-	cin.sync_with_stdio(false);
 
-	istream *pinp;
-#ifndef ONLINE_JUDGE
-	unique_ptr<istream> stream;
-	if (argc > 1) {
-		pinp = new ifstream(argv[1]);
-		stream.reset(pinp);
-	}
-	else if (!input.empty()) {
-		pinp = new istringstream(input);
-		stream.reset(pinp);
-	} else
-#endif	
+	int n;
+	scanf("%d", &n);
+
+	vector<int> p(n+1);
+
+	for (int i = 0; i < n; i++)
 	{
-		pinp = &cin;
+		int g;
+		//icp >> g;
+		scanf("%d", &g);
+		p[g] = i;
 	}
-	istream &icp = *pinp;
-	
+
+	int done = 0;
+	for (int i = 0; i < n; i++)
+	{
+		int b;
+		//icp >> b;
+		scanf("%d", &b);
+		if (done == n) {
+			printf("0 ");
+			//cout << "0" << " ";
+			continue;
+		}
+		
+		auto elem = p[b];
+		int num = elem - done + 1;
+		if (num <= 0) {
+			//cout << "0" << " ";
+			printf("0 ");
+			continue;
+		}
+		//cout << num << " ";
+		printf("%d ", num);
+		done += num;
+	}
+
 	return 0;
 }
