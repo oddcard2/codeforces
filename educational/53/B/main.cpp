@@ -3,19 +3,15 @@
 
 using namespace std;
 
-string input = "";
-
-int main(int argc, char **argv) {
+int main() {
 
 	int n;
 	scanf("%d", &n);
 
 	vector<int> p(n+1);
-
 	for (int i = 0; i < n; i++)
 	{
 		int g;
-		//icp >> g;
 		scanf("%d", &g);
 		p[g] = i;
 	}
@@ -24,22 +20,10 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < n; i++)
 	{
 		int b;
-		//icp >> b;
 		scanf("%d", &b);
-		if (done == n) {
-			printf("0 ");
-			//cout << "0" << " ";
-			continue;
-		}
-		
+
 		auto elem = p[b];
-		int num = elem - done + 1;
-		if (num <= 0) {
-			//cout << "0" << " ";
-			printf("0 ");
-			continue;
-		}
-		//cout << num << " ";
+		int num = max(0, elem - done + 1);
 		printf("%d ", num);
 		done += num;
 	}
