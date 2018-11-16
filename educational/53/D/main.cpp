@@ -3,78 +3,250 @@
 
 using namespace std;
 
-string input = "";
+typedef int64_t i64;
 
-template <typename T, typename U>
-std::pair<T, U> operator-(const std::pair<T, U> & l, const std::pair<T, U> & r) {
-	return { l.first - r.first, l.second - r.second };
-}
-
-template<typename T>
-class FenwickTree
-{
+class segtree {
 public:
-	vector<T> t;
-	vector<T> t2;
+	struct node {
+		i64 count = 0;
+		i64 sum = 0;
+		void apply(int l, int r, i64 v) {
+			sum += v;
+			if (v < 0)
+				count--;
+			else if (v > 0)
+				count++;
+		}
+	};
+	node unite(const node &a, const node &b) const {
+		node res;
+		res.sum = a.sum + b.sum;
+		res.count = a.count + b.count;
+		return res;
+	}
+
+	inline void push(int x, int l, int r) {
+	}
+
+	inline void pull(int x, int z) {
+		tree[x] = unite(tree[x + 1], tree[z]);
+	}
+
 	int n;
+	vector<node> tree;
 
-	void init(int nn)
-	{
-		n = nn;
-		t.assign(n, T());
-		t2.assign(n, T());
-	}
-
-	pair<T,T> sum(int r)
-	{
-		T result = 0;
-		T not_zero_cnt = 0;
-		for (; r >= 0; r = (r & (r + 1)) - 1) {
-			result += t[r];
-			not_zero_cnt += t2[r];
+	void build(int x, int l, int r) {
+		if (l == r) {
+			return;
 		}
-		return make_pair(result, not_zero_cnt);
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		build(x + 1, l, y);
+		build(z, y + 1, r);
+		pull(x, z);
 	}
 
-	void inc(int i, T delta)
-	{
-		for (; i < n; i = (i | (i + 1))) {
-			t[i] += delta;
-			t2[i] += (delta > 0) ? 1 : -1;
+	template <typename M>
+	void build(int x, int l, int r, const vector<M> &v) {
+		if (l == r) {
+			tree[x].apply(l, r, v[l]);
+			return;
 		}
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		build(x + 1, l, y, v);
+		build(z, y + 1, r, v);
+		pull(x, z);
 	}
 
-	pair<T, T> sum(int l, int r)
-	{
-		return sum(r) - sum(l - 1);
+	node get(int x, int l, int r, int ll, int rr) {
+		if (ll <= l && r <= rr) {
+			return tree[x];
+		}
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		push(x, l, r);
+		node res{};
+		if (rr <= y) {
+			res = get(x + 1, l, y, ll, rr);
+		}
+		else {
+			if (ll > y) {
+				res = get(z, y + 1, r, ll, rr);
+			}
+			else {
+				res = unite(get(x + 1, l, y, ll, rr), get(z, y + 1, r, ll, rr));
+			}
+		}
+		pull(x, z);
+		return res;
 	}
 
-	void init(vector<T> a)
-	{
-		init((int)a.size());
-		for (auto i = 0; i < a.size(); i++)
-			inc(i, a[i]);
+	template <typename... M>
+	void modify(int x, int l, int r, int ll, int rr, const M&... v) {
+		if (ll <= l && r <= rr) {
+			tree[x].apply(l, r, v...);
+			return;
+		}
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		push(x, l, r);
+		if (ll <= y) {
+			modify(x + 1, l, y, ll, rr, v...);
+		}
+		if (rr > y) {
+			modify(z, y + 1, r, ll, rr, v...);
+		}
+		pull(x, z);
+	}
+
+	int find_first_knowingly(int x, int l, int r, const function<bool(const node&)> &f) {
+		if (l == r) {
+			return l;
+		}
+		push(x, l, r);
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		int res;
+		if (f(tree[x + 1])) {
+			res = find_first_knowingly(x + 1, l, y, f);
+		}
+		else {
+			res = find_first_knowingly(z, y + 1, r, f);
+		}
+		pull(x, z);
+		return res;
+	}
+
+	int find_first(int x, int l, int r, int ll, int rr, const function<bool(const node&)> &f) {
+		if (ll <= l && r <= rr) {
+			if (!f(tree[x])) {
+				return -1;
+			}
+			return find_first_knowingly(x, l, r, f);
+		}
+		push(x, l, r);
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		int res = -1;
+		if (ll <= y) {
+			res = find_first(x + 1, l, y, ll, rr, f);
+		}
+		if (rr > y && res == -1) {
+			res = find_first(z, y + 1, r, ll, rr, f);
+		}
+		pull(x, z);
+		return res;
+	}
+
+	int find_last_knowingly(int x, int l, int r, const function<bool(const node&)> &f) {
+		if (l == r) {
+			return l;
+		}
+		push(x, l, r);
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		int res;
+		if (f(tree[z])) {
+			res = find_last_knowingly(z, y + 1, r, f);
+		}
+		else {
+			res = find_last_knowingly(x + 1, l, y, f);
+		}
+		pull(x, z);
+		return res;
+	}
+
+	int find_last(int x, int l, int r, int ll, int rr, const function<bool(const node&)> &f) {
+		if (ll <= l && r <= rr) {
+			if (!f(tree[x])) {
+				return -1;
+			}
+			return find_last_knowingly(x, l, r, f);
+		}
+		push(x, l, r);
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+		int res = -1;
+		if (rr > y) {
+			res = find_last(z, y + 1, r, ll, rr, f);
+		}
+		if (ll <= y && res == -1) {
+			res = find_last(x + 1, l, y, ll, rr, f);
+		}
+		pull(x, z);
+		return res;
+	}
+
+	segtree(int _n) : n(_n) {
+		assert(n > 0);
+		tree.resize(2 * n - 1);
+		build(0, 0, n - 1);
+	}
+
+	template <typename M>
+	segtree(const vector<M> &v) {
+		n = v.size();
+		assert(n > 0);
+		tree.resize(2 * n - 1);
+		build(0, 0, n - 1, v);
+	}
+
+	node get(int ll, int rr) {
+		assert(0 <= ll && ll <= rr && rr <= n - 1);
+		return get(0, 0, n - 1, ll, rr);
+	}
+
+	node get(int p) {
+		assert(0 <= p && p <= n - 1);
+		return get(0, 0, n - 1, p, p);
+	}
+
+	template <typename... M>
+	void modify(int ll, int rr, const M&... v) {
+		assert(0 <= ll && ll <= rr && rr <= n - 1);
+		modify(0, 0, n - 1, ll, rr, v...);
+	}
+
+	int get_pos_less(int x, int l, int r, i64& limit) {
+		int y = (l + r) >> 1;
+		int z = x + ((y - l + 1) << 1);
+
+		if (l == r && tree[x].sum > limit) {
+			return l;
+		}
+
+		if (tree[x+1].sum <= limit) {
+			limit -= tree[x + 1].sum;
+		}
+		else {
+			return get_pos_less(x + 1, l, y, limit);
+		}
+
+		if (tree[z].sum <= limit)
+			return r;
+
+		return get_pos_less(z, y + 1, r, limit);
+	}
+
+	int get_pos_less(i64 limit) {
+		return get_pos_less(0, 0, n-1, limit);
+	}
+
+
+	// find_first and find_last call all FALSE elements
+	// to the left (right) of the sought position exactly once
+
+	int find_first(int ll, int rr, const function<bool(const node&)> &f) {
+		assert(0 <= ll && ll <= rr && rr <= n - 1);
+		return find_first(0, 0, n - 1, ll, rr, f);
+	}
+
+	int find_last(int ll, int rr, const function<bool(const node&)> &f) {
+		assert(0 <= ll && ll <= rr && rr <= n - 1);
+		return find_last(0, 0, n - 1, ll, rr, f);
 	}
 };
-
-template<typename C, typename T>
-int fenwick_upperbound(C t, int first, int last, T val)
-{
-	int f = first;
-	int count = last - first;
-	while (count>0)
-	{
-		int it = f; 
-		int step = count / 2; 
-		it = f + step;
-		if (!(val < t.sum(first, it).first))
-		{
-			f = ++it; count -= step + 1;
-		}
-		else count = step;
-	}
-	return f;
-}
 
 int main() {
 
@@ -83,64 +255,55 @@ int main() {
 	scanf("%d", &n);
 	scanf("%" PRIi64, &T);
 
-	vector<int64_t> a(n);
-	//vector<int64_t> a2(n, 1);
+	vector<int64_t> a(n+1);
 	for (int i = 0; i < n; i++)
 	{
 		scanf("%" PRIi64, &a[i]);
 	}
 
-	//n = 7;
-	//vector<int64_t> a = { 1,2,0,3,2,0,1 }; //1,3,3,6,8,8,9
-	//vector<int64_t> a2 = { 1,1,0,1,1,0,1 };
-
-	//FenwickTree<int64_t> c;
-	//c.init(a2);
-	FenwickTree<int64_t> s;
-	s.init(a);
-
-	//int p = fenwick_upperbound(s, 2, 7, 4);
-	//p = fenwick_upperbound(s, 0, 7, 7);
-	//p = c.sum(1, 3);
+	segtree tr(a);
 
 	int pos = 0;
-	int cnt = 0;
+	i64 cnt = 0;
 	auto m = T;
 	auto ac = n;
 	while (ac > 0 && m > 0) { //have kiosks and money
 		if (pos == 0) {
-			auto ts = s.sum(n-1);
-			if (ts.first >= m) {
-				//auto tc = c.sum(n-1);
-				int k = (m / ts.first) * ts.second;
+			auto ts = tr.get(0, n - 1);
+			if (ts.sum <= m) {
+				i64 k = (m / ts.sum) * ts.count;
 				cnt += k;
-				m %= ts.first;
-				ac = ts.second;
+				m %= ts.sum;
+				ac = ts.count;
 			}
 		}
 		if (m == 0)
 			break;
 
-		int i = fenwick_upperbound(s, pos, n, m);
-			
-		auto cc = s.sum(pos, i-1);
-		if (cc.second > 0) {
-			cnt += cc.second;
-			m -= cc.first; // s.sum(pos, i - 1);
-		}
-		if (i == n) {
-			pos = 0;
-		}
-		else {
-			if (pos == i) { //can't to buy
-				s.inc(i, -a[i]);
-				//c.inc(i, -1);
-				ac--;
+		i64 first_sum = 0;
+		if (pos > 0)
+			first_sum = tr.get(0, pos-1).sum;
+		int i = tr.get_pos_less(m + first_sum);
+
+		if (i > pos) { //buy somewhat
+			auto cc = tr.get(pos, i - 1);
+			if (cc.count > 0) {
+				cnt += cc.count;
+				m -= cc.sum;
 			}
-			pos = i;
+		}
+		if (i < n) {
+			tr.modify(i, i, -a[i]);
+			ac--;
+			pos = i + 1;
+			if (pos == n)
+				pos = 0;
 		}
 
+		if (i >= n) {
+			pos = 0;
+		}
 	}
-	printf("%d", cnt);
+	printf("%" PRIi64, cnt);
 	return 0;
 }
