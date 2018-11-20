@@ -15,9 +15,47 @@ typedef long long ll;
 
 
 struct pt {
+	typedef ll T;
 	ll x;
 	ll y;
+
+	pt() {}
+	pt(T x, T y) :x(x), y(y) {}
+
+	const pt& operator=(const pt& o) {
+		tie(x, y) = tie(o.x, o.y);
+		return *this;
+	}
 };
+
+static bool operator==(const pt& a, const pt& b) {
+	return tie(a.x, a.y) == tie(b.x, b.y);
+}
+
+static pt operator+(const pt& a, const pt& b) {
+	return pt(a.x + b.x, a.y + b.y);
+}
+
+static pt operator-(const pt& a, const pt& b) {
+	return pt(a.x - b.x, a.y - b.y);
+}
+
+static bool operator<(const pt& a, const pt& b) {
+	return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+static pt::T dot(pt a, pt b) {
+	return a.x*b.x + a.y*b.y;
+}
+
+static pt::T cross(pt a, pt b) {
+	return a.x*b.y - a.y*b.x;
+}
+
+//between b-a and c-a
+static pt::T cross(pt a, pt b, pt c) {
+	return cross(b - a, c - a);
+}
 
 bool cmp(pt a, pt b) {
 	return a.x < b.x || a.x == b.x && a.y < b.y;
@@ -31,7 +69,33 @@ bool ccw(pt a, pt b, pt c) {
 	return a.x*(b.y - c.y) + b.x*(c.y - a.y) + c.x*(a.y - b.y) > 0;
 }
 
-void convex_hull(vector<pt> & a) {
+//https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain#C++
+vector<pt> convex_hull(vector<pt> P)
+{
+	size_t n = P.size(), k = 0;
+	if (n <= 3) return P;
+	vector<pt> H(2 * n);
+
+	// Sort points lexicographically
+	sort(P.begin(), P.end());
+
+	// Build lower hull
+	for (size_t i = 0; i < n; ++i) {
+		while (k >= 2 && cross(H[k - 2], H[k - 1], P[i]) <= 0) k--;
+		H[k++] = P[i];
+	}
+
+	// Build upper hull
+	for (size_t i = n - 1, t = k + 1; i > 0; --i) {
+		while (k >= t && cross(H[k - 2], H[k - 1], P[i - 1]) <= 0) k--;
+		H[k++] = P[i - 1];
+	}
+
+	H.resize(k - 1);
+	return H;
+}
+
+void convex_hull2(vector<pt> & a) {
 	if (a.size() == 1)  return;
 	sort(a.begin(), a.end(), &cmp);
 	pt p1 = a[0], p2 = a.back();
@@ -57,9 +121,27 @@ void convex_hull(vector<pt> & a) {
 		a.push_back(down[i]);
 }
 
-//ll sq(const vector<pt>& p, ll i, ll j, ll k) {
-//	return (p[j].x - p[i].x)*(p[k].y - p[i].y) - (p[j].y - p[i].y)*(p[k].x - p[i].x);
-//}
+
+tuple<ll,ll,ll,ll> brutforce(vector<pt>& p) {
+	ll n = (ll)p.size();
+	ll maxs = 0;
+	ll ma = 0, mb = 0, mc = 0;
+	for (ll i = 0; i < n-2; i++)
+	{
+		for (ll j = 0; j < n-1; j++)
+		{
+			for (ll k = 0; k < n; k++)
+			{
+				ll s = abs(cross(p[i], p[j], p[k]));
+				if (s > maxs) {
+					maxs = s;
+					tie(ma, mb, mc) = tie(i, j, k);
+				}
+			}
+		}
+	}
+	return make_tuple(maxs,ma,mb,mc);
+}
 
 int main() {
 
@@ -68,37 +150,44 @@ int main() {
 
 	vector<pt> p(n);
 
-	auto sq = [&p](ll i, ll j, ll k) {
-		return (p[j].x - p[i].x)*(p[k].y - p[i].y) - (p[j].y - p[i].y)*(p[k].x - p[i].x);
-	};
-
 	fll(i, n) {
 		scll2(p[i].x, p[i].y);
 	}
 
-	convex_hull(p);
+	//auto bf = brutforce(p);
 
-	ll nn = (ll)p.size();
-	ll a = 0, b=1, c=2;
-	ll msx_s = 0;
+	p = convex_hull(p);
+
+	n = (ll)p.size();
+	ll a = 0, b, c;
+	ll max_s = 0;
 	ll ma = 0, mb = 0, mc = 0;
 
-	while (a < nn) {
-		while (sq(a, b, (c + 1) % nn) > sq(a, b, c)) c = (c+1)%nn;
-		while (sq(a, (b + 1)%nn, c) > sq(a, b, c)) b = (b+1)%nn;
+	//reverse(begin(p), end(p));
+	ll pcnt = 0;
+	for (; a < n-2; a++)
+	{
+		//while we improve S increases c
+		//then increase b
+		b = a + 1;
+		c = b + 1;
+		for (; b < n-1; b++)
+		{
+			if (c < b + 1)  //JIC
+				c = b + 1;
+			while (c < n - 1 && cross(p[a], p[b], p[c + 1]) >= cross(p[a], p[b], p[c])) {
+				c++;
+				pcnt++;
+			}
 
-		ll s = sq(a, b, c);
-		if (s > msx_s) {
-			tie(ma, mb, mc) = tie(a, b, c);
-			msx_s = s;
+			ll s = cross(p[a], p[b], p[c]);
+			if (s > max_s) {
+				max_s = s;
+				tie(ma, mb, mc) = tie(a, b, c);
+			}
 		}
-		if (b >= nn) b -= nn;
-		if (c >= nn) c -= nn;
-
-		a++;
 	}
-/*	while (a < nn) {		while (sq(a, b, (c + 1)) > sq(a, b, c)) {			c = (c + 1);		}		while (sq(a, (b + 1), c) > sq(a, b, c)) {			b = (b + 1);		}		ll s = sq(a, b, c);		if (s > msx_s) {			msx_s = s;			tie(ma, mb, mc) = tie(a, b, c);			//ma = a;			//mb = b;			//mc = c;		}		if (b >= n) b -= nn;
-		if (c >= n) c -= nn;		a++;	};*/
+
 	pt na, nb, nc;
 	na.x = p[ma].x + (p[mb].x - p[mc].x);
 	na.y = p[ma].y + (p[mb].y - p[mc].y);
