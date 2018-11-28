@@ -10,9 +10,16 @@ typedef long long ll;
 
 ll dp[31][31][51];
 
+#define LAZY
+
 int main(int argc, char **argv) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+#ifdef LOCAL
+	freopen(FILE_NAME ".in", "r", stdin);
+	//	freopen(FILE_NAME ".out", "w", stdout);
+#endif
 
 	ll t;
 	cin >> t;
@@ -37,6 +44,43 @@ int main(int argc, char **argv) {
 		}
 	}
 
+#ifdef LAZY
+	function<ll(int, int, int)> calc = [&](int n, int m, int k) -> ll {
+		if (dp[n][m][k] < MAX_VAL)
+			return dp[n][m][k];
+		if (n*m < k || !k)
+			return MAX_VAL;
+		if (n*m == k) {
+			dp[n][m][k] = 0;
+			return 0;
+		}
+
+		//splitting by n
+		for (ll i = 1; i <= n - 1; i++) {
+			for (ll f = 0; f <= k; f++) { //first part
+				dp[n][m][k] = min(dp[n][m][k], calc(i, m, f) + calc(n - i,m,k - f) + m * m);
+			}
+		}
+
+		//splitting by m
+		for (ll i = 1; i <= m - 1; i++) {
+			for (ll f = 0; f <= k; f++) { //first part					 
+				dp[n][m][k] = min(dp[n][m][k], calc(n,i,f) + calc(n,m - i,k - f) + n * n);
+			}
+		}
+
+		return dp[n][m][k];
+	};
+
+	ll n, m, k;
+	for (auto q : qs) {
+		tie(n, m, k) = q;
+		cout << calc(n,m,k) << '\n';
+	}
+
+	
+
+#else
 	for (ll n = 1; n <= mn; n++) {
 		for (ll m = 1; m <= mm; m++) {		
 			//wo splitting
@@ -70,6 +114,6 @@ int main(int argc, char **argv) {
 		tie(n, m, k) = q;
 		cout << dp[n][m][k] << '\n';
 	}
-
+#endif
 	return 0;
 }
