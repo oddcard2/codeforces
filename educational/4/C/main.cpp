@@ -11,5 +11,35 @@ int main() {
 	string s;
 	cin >> s;
 
+	bool ok = true;
+	int cnt = 0;
+	stack<char> st;
+
+	for (auto i = 0; i < s.size(); i++)
+	{
+		auto c = s[i];
+		if (c == '(' || c == '{' || c == '[' || c == '<') {
+			st.push(c);
+		}
+		if (c == ')' || c == '}' || c == ']' || c == '>') {
+			if (st.empty()) {
+				ok = false;
+				break;
+			}
+			auto oc = st.top();
+			st.pop();
+
+			if (!((oc == '(' && c == ')') || (oc == '[' && c == ']') || (oc == '{' && c == '}') || (oc == '<' && c == '>'))) {
+				cnt++;
+			}
+		}
+	}
+	if (!st.empty())
+		ok = false;
+	
+	if (!ok)
+		cout << "Impossible";
+	else
+		cout << cnt;
 	return 0;
 }
