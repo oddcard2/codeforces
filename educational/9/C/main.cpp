@@ -20,29 +20,22 @@ int main() {
 	}
 
 	auto pred = [&](int i, int j) {
+		//aa[i]+aa[j] < aa[j]+aa[i]
 		const string& a = aa[i];
 		const string& b = aa[j];
 
-		if (a.length() == b.length()) {
-			return a.compare(b) == -1;
-		}
-		if (a.length() < b.length()) {
-			if (b.compare(0, a.length(), a) > 0)
+		int len = a.length() + b.length();
+		for (int i = 0; i < len; i++)
+		{
+			char c1 = (i < a.length()) ? a[i] : b[i - a.length()];
+			char c2 = (i < b.length()) ? b[i] : a[i - b.length()];
+			if (c1 < c2)
 				return true;
-			//x >= xx
-			return b[a.length()] > a[a.length() - 1];
+			if (c2 < c1)
+				return false;
 		}
-		else {
-			if (a.compare(0, b.length(), b) == -1)
-				return true;
-			//xx x
-			return a[b.length()] <= b[b.length() - 1];
-		}
+		return false;
 	};
-
-	//bool r1 = pred(4, 0);
-	//bool r2 = pred(4, 1);
-	//bool r3 = pred(4, 3);
 
 	sort(begin(sn), end(sn), pred);
 
