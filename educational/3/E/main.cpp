@@ -58,13 +58,14 @@ int dsu::unite(int s1, int s2)
 }
 
 int n;
+vector<vector<pair<int, int>> > g;
 vector<tuple<int, int, int, ll>> edges;
 vector<ll> sums;
 vector<int> ids;
 vector<int> ans;
 
-int mst_kruskal() {
-	int sum = 0;
+ll mst_kruskal() {
+	ll sum = 0;
 	//sort edges
 	sort(begin(edges), end(edges), [](const tuple<int, int, int, ll>& a, const tuple<int, int, int, ll>& b) { return get<3>(a) < get<3>(b); });
 
@@ -95,8 +96,6 @@ int mst_kruskal() {
 }
 
 int l;
-vector<vector<int> > g;
-vector<vector<ll> > gw;
 vector<int> tin, tout;
 vector<vector<int> > up;
 vector<ll> pw;
@@ -111,11 +110,11 @@ void bl_dfs(int v, int p = 0) {
 	}
 
 	for (int j = 0; j < g[v].size(); ++j) {
-		int u = g[v][j];
+		int u = g[v][j].first;
 		if (u == p)
 			continue;
 
-		pw[u] = gw[v][j];
+		pw[u] = g[v][j].second;
 		bl_dfs(u, v);
 	}
 	tout[v] = ++timer;
@@ -141,6 +140,13 @@ int lca(int a, int b) {
 	return up[u][0];
 }
 
+void init_lca(int n) {
+	tin.resize(n), tout.resize(n), up.resize(n);
+	l = 1;
+	while ((1 << l) <= n)  ++l;
+	for (int i = 0; i < n; ++i)  up[i].resize(l + 1);
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -149,9 +155,6 @@ int main() {
 	cin >> n >> m;
 
 	g.resize(n);
-	tin.resize(n);
-	tout.resize(n);
-	up.resize(n);
 
 	sums.resize(m, -1);
 	edges.resize(m);
@@ -167,14 +170,11 @@ int main() {
 		edges[i] = {i, u, v, w};
 	}
 
-	l = 1;
-	while ((1 << l) <= n)  ++l;
-	for (int i = 0; i < n; ++i)  up[i].resize(l + 1);
+	init_lca(n);
 
 	ll s = mst_kruskal();
 
 	pw.resize(n);
-	gw.resize(n);
 
 	int root = get<1>(edges[ids[ans[0]]]);
 	for (int i = 0; i < ans.size(); i++)
@@ -183,10 +183,8 @@ int main() {
 		ll w;
 		tie(j, u, v, w) = edges[ids[ans[i]]];
 
-		g[u].push_back(v);
-		g[v].push_back(u);
-		gw[u].push_back(w);
-		gw[v].push_back(w);
+		g[u].push_back({ v,w });
+		g[v].push_back({ u, w });
 	}
 
 	bl_dfs(0);
