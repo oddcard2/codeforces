@@ -99,6 +99,7 @@ int l;
 vector<int> tin, tout;
 vector<vector<int> > up;
 vector<vector<int> > md;
+vector<int> vh;
 vector<ll> pw;
 int timer = 0;
 
@@ -110,7 +111,7 @@ void bl_dfs(int v, int p = 0) {
 	//premature optimization is the root of all evil:
 	for (int i = 1; i <= l /*&& up[v][i - 1] > 0*/; ++i) {
 		up[v][i] = up[up[v][i - 1]][i - 1];
-		md[v][i] = max(md[v][i - 1], md[up[v][i - 1]][i - 1]); //nn
+		md[v][i] = max(md[v][i - 1], md[up[v][i - 1]][i - 1]);
 	}
 
 	for (int j = 0; j < g[v].size(); ++j) {
@@ -119,7 +120,8 @@ void bl_dfs(int v, int p = 0) {
 			continue;
 
 		pw[u] = g[v][j].second;
-		md[u][0] = g[v][j].second; //nn
+		md[u][0] = g[v][j].second;
+		vh[u] = vh[v] + 1;
 		bl_dfs(u, v);
 	}
 	tout[v] = ++timer;
@@ -129,69 +131,42 @@ bool upper(int a, int b) {
 	return tin[a] <= tin[b] && tout[a] >= tout[b];
 }
 
-int get_max2(int a, int b) {
-	int c = a;
-	int j = 0;
-
-	int mx = numeric_limits<int>::min();
-	while (c != b) {
-		int t = up[c][j];
-		if (upper(b, t)) {
-			mx = max(mx, md[c][j]);
-			j++;
-			if (t == b)
-				break;
-		}
-		else {
-			c = up[c][j - 1];
+int get_best(int v, int span)
+{
+	int ret = numeric_limits<int>::min();
+	for (int i = l; i >= 0; --i)
+	{
+		if (span&(1 << i))
+		{
+			ret = max(ret, md[v][i]);
+			v = up[v][i];
 		}
 	}
-	return mx;
+	return ret;
 }
 
-int get_max(int a, int b) {
+int lca(int a, int b) {
+	if (upper(a, b))
+		return a;
+
+	if (upper(b, a))
+		return b;
+
 	int u = a;
 	int i = l;
 
-	int mx = numeric_limits<int>::min();
-	if (a == b) {
-		return mx;
-	}
 	do {
-		if (!upper(up[u][i], b)) {
-			mx = max(mx, md[u][i]);
+		if (!upper(up[u][i], b))
 			u = up[u][i];
-		}
 		--i;
 	} while (i >= 0);
-	return max(mx, md[u][0]);
-}
-
-pair<int,int> lca(int a, int b) {
-	int res = 0;
-	if (upper(a, b)) {
-		res = a;
-	}
-	else if (upper(b, a))
-		res = b;
-	else {
-		int u = a;
-		int i = l;
-
-		do {
-			if (!upper(up[u][i], b))
-				u = up[u][i];
-			--i;
-		} while (i >= 0);
-		res = up[u][0];
-	}
-	int mx = max(get_max(a, res), get_max(b, res));
-	return { res, mx };
+	return up[u][0];
 }
 
 void init_lca(int n) {
 	tin.resize(n), tout.resize(n), up.resize(n);
 	md.resize(n);
+	vh.resize(n);
 	l = 1;
 	while ((1 << l) <= n)  ++l;
 	for (int i = 0; i < n; ++i) {
@@ -249,7 +224,8 @@ int main() {
 			tie(j, u, v, w) = edges[ids[i]];
 
 			int lc, mx;
-			tie(lc, mx) = lca(u, v);
+			lc = lca(u, v);
+			mx = max(get_best(u, vh[u] - vh[lc]), get_best(v, vh[v] - vh[lc]));
 			
 			sums[i] = s + w - mx;
 		}
