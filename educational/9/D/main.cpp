@@ -4,6 +4,84 @@ using namespace std;
 
 typedef long long ll;
 
+
+//Soultion from tutorial:
+#if 1
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+
+	//int n = 1000000;
+
+	int n, m;
+	cin >> n >> m;
+
+	vector<int> aa(n);
+	vector<int> a(1000000 + 1);
+
+	vector<int> gd(n);
+	int gn = 0;
+	//vector<int> id(1000000 + 1);
+
+	int num = 0;
+	int mx = 0;
+	for (int i = 0; i < n; i++)
+	{
+		int v;
+		cin >> v;
+		aa[i] = v;
+		if (v <= m) {
+			a[v]++;
+			if (v > mx)
+				mx = v;
+		}
+	}
+
+	for (int i = 1; i <= mx; i++)
+	{
+		if (a[i]) {
+			gd[gn++] = i;
+		}
+	}
+
+	if (mx == 0) {
+		cout << "1 0";
+		return 0;
+	}
+
+	vector<int> z(m + 1);
+	for (int i = 0; i < gn; i++)
+	{
+		int v = gd[i];
+		for (int j = 1; j*v <=m ; j++)
+		{
+			z[j*v] += a[v];
+		}
+	}
+
+	mx = 0;
+	int ans = m;
+	for (int i = m; i >=1 ; --i)
+	{
+		if (z[i] >= mx) {
+			ans = i;
+			mx = z[i];
+		}
+	}
+
+	cout << ans << " " << mx << '\n';
+	for (int i = 0; i < n; i++)
+	{
+		if (ans % aa[i] == 0) {
+			cout << i+1 << " ";
+		}
+	}
+
+	return 0;
+}
+
+#else
 vector<int> lp;
 vector<int> pr;
 
@@ -24,7 +102,7 @@ int main() {
 	cin.tie(0);
 
 	//int n = 1000000;
-#if 1
+
 	int n, m;
 	cin >> n >> m;
 
@@ -50,7 +128,7 @@ int main() {
 		cout << "1 0";
 		return 0;
 	}
-#endif
+
 	lp.resize(1000000 + 1);
 	prime_sieve_linear(1000000);
 
@@ -103,8 +181,6 @@ int main() {
 	//gen(1, 1);
 
 	//return 0;
-#if 1
-
 	int cm = m;
 	while (cm > 0) {
 
@@ -135,5 +211,5 @@ int main() {
 	}
 
 	return 0;
-#endif
 }
+#endif
