@@ -53,55 +53,48 @@ int main() {
 
 	ll ans = 0;
 
-	for (ll j = 1; j <= k + 2; j++)
+	ll j = 1;
+	ll mm;
+
+	//for x1
+	ll den = 1;
+	ll val = 1;
+	for (ll i = 1; i <= k + 2; i++)
 	{
-		ll mm = 1;
-		ll den = 1;
-		ll val = 1;
-		for (ll i = 1; i <= k + 2; i++)
-		{
-			if (i == j)
-				continue;
+		if (i == j)
+			continue;
 
-			//mm = (n - v[i]) / (1 - v[i]);
-			den *= (j - i + MOD) % MOD;
-			den %= MOD;
-			val *= (n - i + MOD) % MOD;
-			val %= MOD;
+		den *= (j - i + MOD) % MOD;
+		den %= MOD;
+		val *= (n - i + MOD) % MOD;
+		val %= MOD;
+          
+	}
+	den = get_inv_prime(den, MOD);
+	mm = (den * val) % MOD;
 
-			//mm *= val;
-			//if (mm > MOD)
-			//	mm %= MOD;            
-		}
-		den = get_inv_prime(den, MOD);
-		mm = (den * val) % MOD;
+	ans += v[j] * mm;
+	ans %= MOD;
+
+	for (j = 2; j <= k + 2; j++) {
+		//denominator
+		mm *= (((j - 1) - (k + 2) + MOD) % MOD);
+		mm %= MOD;
+		
+		mm *= get_inv_prime((j - 1 + MOD) % MOD, MOD);
+		mm %= MOD;
+
+		//enumerator
+		mm *= get_inv_prime((n - j), MOD);
+		mm %= MOD;
+
+		mm *= (n - (j - 1));
+		mm %= MOD;
 
 		ans += v[j] * mm;
 		ans %= MOD;
 	}
-#if 0	
-	for (ll i = 2; i <= k+1; i++)
-	{
-		//remove current
-		ll prev_den = get_inv_prime((1 - v[i]), MOD);
-		ll prev_num = (n - v[i]) % MOD;
 
-		mm *= prev_den;
-		mm %= MOD;
-		
-		mm *= get_inv_prime(prev_den, MOD);
-		mm %= MOD;
-
-		//add prev
-		ll del = get_inv_prime((1 - v[i-1]), MOD);
-		ll val = (((n - v[i-1]) % MOD) * del) % MOD;
-		mm *= val;
-		if (mm > MOD)
-			mm %= MOD;
-
-		ans += (v[i] * mm) % MOD;
-	}
-#endif
 	cout << ans;
 
 	return 0;
