@@ -51,6 +51,11 @@ int main() {
 		v[i] = sum;
 	}
 
+	if (n <= k + 2) {
+		cout << v[n];
+		return 0;
+	}
+
 	ll ans = 0;
 
 	ll j = 1;
@@ -67,8 +72,7 @@ int main() {
 		den *= (j - i + MOD) % MOD;
 		den %= MOD;
 		val *= (n - i + MOD) % MOD;
-		val %= MOD;
-          
+		val %= MOD;  
 	}
 	den = get_inv_prime(den, MOD);
 	mm = (den * val) % MOD;
