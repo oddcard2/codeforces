@@ -60,6 +60,9 @@ vi cycles2perm(const vector<cycle>& c, int len) {
 }
 
 int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+
 	rvn;
 
 	vector<cycle> vc = perm_cycles(v);
