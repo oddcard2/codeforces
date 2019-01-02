@@ -4,88 +4,108 @@ using namespace std;
 
 typedef long long ll;
 
-int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(0);
+typedef vector<int> vi;
 
-	int n; cin >> n;
-	vector<int> p(n+1);
-	map<int, int> mp;
-	for (int i = 1; i <= n; i++)
-	{
-		cin >> p[i];
-		mp[i] = p[i];
-	}
+#define rn\
+int n; cin>>n;
 
-	vector<bool> used(n+1);
-	vector<vector<int>> cycles;
-	int c = 0;
-	bool ok = true;
-	for (int i = 1; i <= n; i++)
-	{
-		if (used[i]) {
+#define rvi(name, count)\
+vi name(count);\
+for (int i = 0; i < count; i++) cin >> name[i];
+
+#define rvn \
+int n; cin >> n;\
+vi v(n); \
+for (int i = 0; i < n; i++) cin >> v[i];
+
+#define rvn1 \
+int n; cin >> n;\
+vi v(n+1); \
+for (int i = 0; i < n; i++) cin >> v[i+1];
+
+struct cycle {
+	vi a;
+};
+
+vector<cycle> perm_cycles(const vi& a) {
+	vector<cycle> res;
+	vector<bool> used(a.size()+1); //elems starts with 1!
+
+	for (int i = 1; i < (int)a.size()+1; i++) {
+		if (used[i])
 			continue;
-		}
 
-		cycles.push_back({i});
-		used[i] = 1;
-		int v = i;
-		while (true) {
-			v = mp[v];
-			used[v] = 1;
-			if (cycles[c][0] == v) {
-				if (cycles[c].size() % 2 == 0) {
-					ok = false;
-				}
+		int start = i, curr = start;
+		res.emplace_back(cycle{});
+		
+		do {
+			res.back().a.push_back(curr);
+			used[curr] = true;
+			curr = a[curr - 1];
+		} while (curr != start);
+	}
+	return res;
+}
+
+vi cycles2perm(const vector<cycle>& c, int len) {
+	vi res(len + 1);
+	for (auto e : c) {
+		for (size_t i = 0; i < e.a.size()-1; i++)
+		{
+			res[e.a[i]] = e.a[i + 1];
+		}
+		res[e.a.back()] = e.a.front();
+	}
+	return res;
+}
+
+int main() {
+	rvn;
+
+	vector<cycle> vc = perm_cycles(v);
+	sort(begin(vc), end(vc), [](const cycle& c1, const cycle& c2) { return c1.a.size() < c2.a.size(); });
+	vector<cycle> res;
+	int ok = 1;
+	int pos = 0;
+	while (pos < vc.size())
+	{
+		if (vc[pos].a.size() % 2 == 0) {
+			if (pos + 1 == vc.size() || vc[pos + 1].a.size() != vc[pos].a.size()) {
+				ok = 0;
 				break;
 			}
-			cycles[c].push_back(v);
-			
-
+			else {
+				res.emplace_back(cycle{ vi(vc[pos].a.size() *2) });
+				int p = 0;
+				for (size_t i = 0; i < vc[pos].a.size(); i++)
+				{
+					res.back().a[p] = vc[pos].a[i];
+					res.back().a[p+1] = vc[pos+1].a[i];
+					p += 2;
+				}
+				pos += 2;
+			}
 		}
-		if (!ok)
-			break;
-		c++;
+		else {
+			res.emplace_back(cycle{ vi(vc[pos].a.size()) });
+			int p = 0;
+			int len = (int)vc[pos].a.size();
+			for (size_t i = 0; i < vc[pos].a.size(); i++) {
+				res.back().a[i] = vc[pos].a[p];
+				p = (p - len/2 + len) % len;
+			}
+			pos++;
+		}
 	}
-
-	if (!ok) {
+	if (ok) {
+		vi perm = cycles2perm(res, n);
+		for (size_t i = 1; i < perm.size(); i++)
+		{
+			cout << perm[i] << " ";
+		}
+	}
+	else {
 		cout << "-1";
-		return 0;
 	}
-
-
-	int c2 = 0;
-	vector<int> ans;
-	for (const auto& cc : cycles) {
-		if (cycles.size() == 2) {
-			continue;
-			c2++;
-		}
-		int k = cc[0];
-		int nn = cc.size();
-		ans.push_back(k);
-		//cout << k << " ";
-		for (int i = 1; i < cc.size(); ++i) {
-			k = (((k-1) - nn / 2 + nn) % nn + 1);
-			ans.push_back(k);
-			//cout << k << " ";
-		}
-	}
-	//ans.push_back(ans[0]);
-
-	if (c2 % 2 != 0) {
-		cout << "-1";
-		return 0;
-	}
-
-	vector<int> pr(ans.size());
-	for (int i = 0; i < ans.size(); i++) {
-		pr[ans[i]] = ans[i + 1];
-	}
-
-	for (int i = 1; i < pr.size(); i++) {
-		cout << pr[i] << " ";
-	}
-
 	return 0;
 }
