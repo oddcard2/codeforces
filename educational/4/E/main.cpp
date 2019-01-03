@@ -23,12 +23,12 @@ int n; cin >> n;\
 vi v(n+1); \
 for (int i = 0; i < n; i++) cin >> v[i+1];
 
-struct cycle {
-	vi a;
-};
+//struct cycle {
+//	vi a;
+//};
 
-vector<cycle> perm_cycles(const vi& a) {
-	vector<cycle> res;
+vector<vi> perm_cycles(const vi& a) {
+	vector<vi> res;
 	vector<bool> used(a.size()+1); //elems starts with 1!
 
 	for (int i = 1; i < (int)a.size()+1; i++) {
@@ -36,10 +36,10 @@ vector<cycle> perm_cycles(const vi& a) {
 			continue;
 
 		int start = i, curr = start;
-		res.emplace_back(cycle{});
+		res.emplace_back(vi{});
 		
 		do {
-			res.back().a.push_back(curr);
+			res.back().push_back(curr);
 			used[curr] = true;
 			curr = a[curr - 1];
 		} while (curr != start);
@@ -47,14 +47,14 @@ vector<cycle> perm_cycles(const vi& a) {
 	return res;
 }
 
-vi cycles2perm(const vector<cycle>& c, int len) {
+vi cycles2perm(const vector<vi>& c, int len) {
 	vi res(len + 1);
 	for (auto e : c) {
-		for (size_t i = 0; i < e.a.size()-1; i++)
+		for (size_t i = 0; i < e.size()-1; i++)
 		{
-			res[e.a[i]] = e.a[i + 1];
+			res[e[i]] = e[i + 1];
 		}
-		res[e.a.back()] = e.a.front();
+		res[e.back()] = e.front();
 	}
 	return res;
 }
@@ -65,36 +65,36 @@ int main() {
 
 	rvn;
 
-	vector<cycle> vc = perm_cycles(v);
-	sort(begin(vc), end(vc), [](const cycle& c1, const cycle& c2) { return c1.a.size() < c2.a.size(); });
-	vector<cycle> res;
+	vector<vi> vc = perm_cycles(v);
+	sort(begin(vc), end(vc), [](const vi& v1, const vi& v2) { return v1.size() < v2.size(); });
+	vector<vi> res;
 	int ok = 1;
 	int pos = 0;
 	while (pos < vc.size())
 	{
-		if (vc[pos].a.size() % 2 == 0) {
-			if (pos + 1 == vc.size() || vc[pos + 1].a.size() != vc[pos].a.size()) {
+		if (vc[pos].size() % 2 == 0) {
+			if (pos + 1 == vc.size() || vc[pos + 1].size() != vc[pos].size()) {
 				ok = 0;
 				break;
 			}
 			else {
-				res.emplace_back(cycle{ vi(vc[pos].a.size() *2) });
+				res.emplace_back(vi(vc[pos].size() *2));
 				int p = 0;
-				for (size_t i = 0; i < vc[pos].a.size(); i++)
+				for (size_t i = 0; i < vc[pos].size(); i++)
 				{
-					res.back().a[p] = vc[pos].a[i];
-					res.back().a[p+1] = vc[pos+1].a[i];
+					res.back()[p] = vc[pos][i];
+					res.back()[p+1] = vc[pos+1][i];
 					p += 2;
 				}
 				pos += 2;
 			}
 		}
 		else {
-			res.emplace_back(cycle{ vi(vc[pos].a.size()) });
+			res.emplace_back(vi(vc[pos].size()));
 			int p = 0;
-			int len = (int)vc[pos].a.size();
-			for (size_t i = 0; i < vc[pos].a.size(); i++) {
-				res.back().a[i] = vc[pos].a[p];
+			int len = (int)vc[pos].size();
+			for (size_t i = 0; i < vc[pos].size(); i++) {
+				res.back()[i] = vc[pos][p];
 				p = (p - len/2 + len) % len;
 			}
 			pos++;
