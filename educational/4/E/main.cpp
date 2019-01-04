@@ -27,7 +27,7 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 //	vi a;
 //};
 
-vector<vi> perm_cycles(const vi& a) {
+vector<vi> perm2cycles(const vi& a) {
 	vector<vi> res;
 	vector<bool> used(a.size()+1); //elems starts with 1!
 
@@ -65,7 +65,7 @@ int main() {
 
 	rvn;
 
-	vector<vi> vc = perm_cycles(v);
+	vector<vi> vc = perm2cycles(v);
 	sort(begin(vc), end(vc), [](const vi& v1, const vi& v2) { return v1.size() < v2.size(); });
 	vector<vi> res;
 	int ok = 1;
