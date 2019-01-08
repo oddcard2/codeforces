@@ -64,7 +64,7 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
-int main(int argc, char **argv) {
+int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
