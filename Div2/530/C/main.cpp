@@ -64,9 +64,78 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
-int main(int argc, char **argv) {
+int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	string s;
+	cin >> s;
+
+	int k;
+	cin >> k;
+
+	int na = 0, nb = 0;
+	forn(i, sz(s)) {
+		if (s[i] == '?') {
+			na++;
+		}
+		else if (s[i] == '*') {
+			nb++;
+		}
+	}
+	int rlen = sz(s) - (na + nb);
+	int ok = 0;
+	string ans;
+
+	if (rlen == k) {
+		ok = 1;
+		forn(i, sz(s)) {
+			if (s[i] == '?' || s[i] == '*')
+				continue;
+			ans += s[i];
+		}
+	}
+	else if (rlen < k && nb > 0) {
+		ok = 2;
+		int req = k - rlen;
+		forn(i, sz(s)) {
+			if (s[i] == '?' || s[i] == '*')
+				continue;
+			if (i == sz(s) - 1)
+				ans += s[i];
+			else if (s[i+1] == '*' && req) {
+				ans += s[i];
+				forn(j, req) {
+					ans += s[i];
+				}
+				req = 0;
+			} else
+				ans += s[i];
+		}
+	}
+	else if (rlen > k && (rlen - k) <= (na + nb)) {
+		int req = rlen - k;
+		
+		forn(i, sz(s)) {
+			if (s[i] == '?' || s[i] == '*')
+				continue;
+			if (i == sz(s) - 1)
+				ans += s[i];
+			else {
+				if ((s[i + 1] == '?' || s[i + 1] == '*') && req) {
+					req--;
+				}
+				else {
+					ans += s[i];
+				}
+			}
+		}
+		ok = 3;
+	}
+	if (!ok)
+		cout << "Impossible";
+	else
+		cout << ans;
 	
 	return 0;
 }

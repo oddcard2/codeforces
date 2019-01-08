@@ -64,9 +64,34 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
-int main(int argc, char **argv) {
+int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int w, h;
+	cin >> w >> h;
+	int u1, d1;
+	cin >> u1 >> d1;
+	int u2, d2;
+	cin >> u2 >> d2;
+
+	while (h > 0) {
+		w += h;
+
+		if (h == d1) {
+			w -= u1;
+		}
+		else if (h == d2) {
+			w -= u2;
+		}
+		if (w < 0)
+			w = 0;
+
+		h--;
+	}
+
+	cout << w;
 	
+
 	return 0;
 }

@@ -64,9 +64,119 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
-int main(int argc, char **argv) {
+vector<vi> g;
+vector<ll> sm;
+vector<ll> a;
+
+int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	
+
+	int n;
+	cin >> n;
+
+	g.resize(n+1);
+	sm.resize(n+1);
+	a.resize(n+1);
+
+	forn(i, n-1) {
+		int v;
+		cin >> v;
+		int u = i + 2;
+
+		g[v].push_back(u);
+		g[u].push_back(v);
+	}
+
+	forn(i, n) {
+		int ss;
+		cin >> ss;
+		sm[i+1] = ss;
+	}
+
+	a[1] = sm[1];
+
+	int s = 1;
+	queue<int> q;
+	q.push(s);
+	vector<bool> used(n+1);
+	vector<int> d(n+1), p(n+1);
+	used[s] = true;
+	p[s] = -1;
+
+	bool ok = true;
+	while (!q.empty()) {
+		int v = q.front();
+		q.pop();
+
+		//ll chsum = -1;
+
+		ll mins = INF64;
+		for (size_t i = 0; i < g[v].size(); ++i) {
+			int to = g[v][i];
+			if (!used[to]) {
+				if (sm[to] != -1) {
+					mins = min(mins, sm[to]);
+				}
+			}
+		}
+
+		if (v != 1 && mins != INF64) {
+			if (mins < sm[v])
+			{
+				ok = false;
+				break;
+			}
+			a[v] = mins - sm[v];
+			sm[v] = mins;
+		}
+
+		ll vsum = sm[v];
+		for (size_t i = 0; i < g[v].size(); ++i) {
+			int to = g[v][i];
+			if (!used[to]) {
+				used[to] = true;
+
+				if (sm[to] != -1) {
+					if (sm[to] < vsum) {
+						ok = false;
+						break;
+					}
+					/*if (chsum == -1) {
+						chsum = sm[to];
+					}
+					else {
+						if (sm[to] != chsum) {
+							ok = false;
+							break;
+						}
+					}*/
+					a[to] = sm[to] - vsum;
+				}
+				else {
+					sm[to] = vsum;
+					a[to] = 0;
+				}
+
+				q.push(to);
+				d[to] = d[v] + 1;
+				p[to] = v;
+			}
+		}
+		if (!ok)
+			break;
+	}
+
+	if (!ok) {
+		cout << "-1";
+	}
+	else {
+		ll ans = 0;
+		forn(i, sz(sm)) {
+			ans += a[i];
+		}
+		cout << ans;
+	}
+
 	return 0;
 }
