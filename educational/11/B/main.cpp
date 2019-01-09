@@ -67,6 +67,51 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	
+
+	int n, m;
+	cin >> n >> m;
+
+	vector<deque<int>> v(4);
+
+	forn(i, m) {
+		if (sz(v[0]) < n || sz(v[3]) < n) {
+			v[(i % 2 == 0) ? 0 : 3].push_back(i+1);
+		}
+		else {
+			v[(i % 2 == 0) ? 1 : 2].push_back(i + 1);
+		}
+	}
+
+	forn(i, 4*n) {
+		int a;
+		if (i % 4 == 0) {
+			if (!v[1].empty()) {
+				a = v[1].front();
+				v[1].pop_front();
+				cout << a << " ";
+			}
+		}
+		if (i % 4 == 1) {
+			if (!v[0].empty()) {
+				a = v[0].front();
+				v[0].pop_front();
+				cout << a << " ";
+			}
+		}
+		if (i % 4 == 2) {
+			if (!v[2].empty()) {
+				a = v[2].front();
+				v[2].pop_front();
+				cout << a << " ";
+			}
+		}
+		if (i % 4 == 3) {
+			if (!v[3].empty()) {
+				a = v[3].front();
+				v[3].pop_front();
+				cout << a << " ";
+			}
+		}
+	}
 	return 0;
 }

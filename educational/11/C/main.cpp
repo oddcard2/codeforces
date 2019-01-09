@@ -64,9 +64,69 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+pair<int, int> bin_search(int n, std::function<bool(int)> ok) {
+	int l = -1, r = n, mid;
+	while (r - l > 1) {
+		mid = (l + r) / 2;
+		if (ok(mid))
+			r = mid;
+		else
+			l = mid;
+	}
+	return { l,r };
+}
+
+vi v;
+int k;
+
+int pos;
+
+bool check(int n) {
+	int zeros = 0;
+	forn(i, n) {
+		if (v[i] == 0)
+			zeros++;
+	}
+	if (zeros <= k) {
+		pos = 0;
+		return false;
+	}
+
+	fore(i, n, sz(v)) {
+		zeros -= (v[i - n] == 0);
+		zeros += (v[i] == 0);
+		if (zeros <= k) {
+			pos = i - n + 1;
+			return false;
+		}
+	}
+	return true;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
+	int n;
+	cin >> n >> k;
+
+	v.resize(n);
+	forn(i, n)
+		cin >> v[i];
+
+	auto res = bin_search(n + 1, check);
+	cout << res.first << '\n';
+
+	check(res.first);
+
+	forn(i, n) {
+		if (i >= pos && i < pos + res.first) {
+			cout << "1 ";
+		}
+		else {
+			cout << v[i] << " ";
+		}
+	}
+
 	return 0;
 }

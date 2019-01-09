@@ -64,9 +64,41 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+int gcd(int a, int b) {
+	while (b) {
+		a %= b;
+		swap(a, b);
+	}
+	return a;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	rvn;
+
+	int cnt = 0;
+	vi ans;
+	forn(i, n) {
+		if (i == 0) {
+			ans.push_back(v[i]);
+		}
+		else {
+			int g = gcd(v[i - 1], v[i]);
+			
+			if (g != 1) {
+				ans.push_back(1);
+				cnt++;
+			}
+			ans.push_back(v[i]);
+		}
+	}
+
+	cout << cnt << '\n';
+	for (auto a : ans) {
+		cout << a << " ";
+	}
 	
 	return 0;
 }
