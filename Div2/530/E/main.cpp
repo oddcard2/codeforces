@@ -64,9 +64,162 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
-int main(int argc, char **argv) {
+//column stat
+struct Stat {
+	vi s[2] = { { 0,0,0,0 }, {0,0,0,0} };
+};
+
+vector<Stat> st;
+
+void calc_stat(const vector<vi>& v) {
+	forn(i, sz(v[0])) {
+		forn(j, 2)
+			forn(k, 4)
+			st[i].s[j][k] = 0;
+	}
+	forn(i, sz(v[0])) { //columns
+		forn(j, sz(v)) { //rows
+			if (j % 2 == 0) {
+				st[i].s[0][v[j][i]]++;
+			}
+			else {
+				st[i].s[1][v[j][i]]++;
+			}
+		}
+	}
+}
+
+int best = 0;
+vector<vi> curr;
+vector<vi> ans;
+
+void solve(int cols) {
+	vi f(2);
+	vi s(2);
+
+	forn(i, 4) {
+		fore(t, i + 1, 4) {
+			f[0] = i;
+			f[1] = t;
+
+			int w = 0;
+			forn(k, 4) {
+				if (k != f[0] && k != f[1]) {
+					s[w++] = k;
+				}
+			}
+
+			///
+			int sum = 0;
+			forn(j, cols) {
+				if (j % 2 == 0) {
+					if ((st[j].s[0][f[0]] + st[j].s[1][f[1]]) > (st[j].s[0][f[1]] + st[j].s[1][f[0]])) {
+						curr[j][0] = f[0];
+						curr[j][1] = f[1];
+						sum += st[j].s[0][f[0]] + st[j].s[1][f[1]];
+					}
+					else {
+						curr[j][0] = f[1];
+						curr[j][1] = f[0];
+						sum += st[j].s[0][f[1]] + st[j].s[1][f[0]];
+					}
+				}
+				else {
+					if ((st[j].s[0][s[0]] + st[j].s[1][s[1]]) > (st[j].s[0][s[1]] + st[j].s[1][s[0]])) {
+						curr[j][0] = s[0];
+						curr[j][1] = s[1];
+						sum += st[j].s[0][s[0]] + st[j].s[1][s[1]];
+					}
+					else {
+						curr[j][0] = s[1];
+						curr[j][1] = s[0];
+						sum += st[j].s[0][s[1]] + st[j].s[1][s[0]];
+					}
+				}
+			}
+			if (sum > best) {
+				ans = curr;
+				best = sum;
+			}
+		}
+	}
+}
+
+vector<vi> transponse(const vector<vi>& v) {
+	vector<vi> res(sz(v[0]), vi(sz(v)));
+	forn(i, sz(v)) {
+		forn(j, sz(v[i])) {
+			res[j][i] = v[i][j];
+		}
+	}
+	return res;
+}
+
+int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	
+
+	string rev = "AGCT";
+	int n, m;
+	cin >> n >> m;
+
+	st.resize(m);
+	curr.resize(m);
+	forn(i, m)
+		curr[i].resize(2);
+
+	vector<vi> v(n, vi(m));
+
+	forn(i, n) {
+		string l;
+		cin >> l;
+		forn(j, sz(l)) {
+			if (l[j] == 'A')
+				v[i][j] = 0;
+			if (l[j] == 'G')
+				v[i][j] = 1;
+			if (l[j] == 'C')
+				v[i][j] = 2;
+			if (l[j] == 'T')
+				v[i][j] = 3;
+		}
+	}
+
+	calc_stat(v);
+	solve(m);
+
+	int best1 = best;
+	vector<vi> ans1 = ans;
+
+	st.resize(n);
+	curr.resize(n);
+	forn(i, n)
+		curr[i].resize(2);
+
+	auto vt = transponse(v);
+	calc_stat(vt);
+	solve(n);
+
+	if (best > best1) {
+		//ans1 = transponse(ans);
+		ans1 = ans;
+		forn(i, n) {
+			forn(j, m) {
+				//res[i][j] = ;
+				cout << rev[ans1[i][j % 2 != 0]];
+			}
+			cout << '\n';
+		}
+	}
+	else {
+		forn(i, n) {
+			forn(j, m) {
+				//res[i][j] = ;
+				cout << rev[ans1[j][i % 2 != 0]];
+			}
+			cout << '\n';
+		}
+	}
+
 	return 0;
 }
