@@ -33,8 +33,8 @@ typedef tuple<int, int, int> tri;
 #define sz(a) int((a).size())
 #define pb(a) push_back(a)
 #define mp(x, y) make_pair((x), (y))
-#define x first
-#define y second
+//#define x first
+//#define y second
 
 using namespace std;
 
@@ -64,9 +64,130 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+/***********************/
+struct pt {
+	typedef ll T;
+	T x;
+	T y;
+
+	pt() {}
+	pt(T x, T y) :x(x), y(y) {}
+
+	const pt& operator=(const pt& o) {
+		tie(x, y) = tie(o.x, o.y);
+		return *this;
+	}
+};
+
+static bool operator==(const pt& a, const pt& b) {
+	return tie(a.x, a.y) == tie(b.x, b.y);
+}
+
+static pt operator+(const pt& a, const pt& b) {
+	return pt(a.x + b.x, a.y + b.y);
+}
+
+static pt operator-(const pt& a, const pt& b) {
+	return pt(a.x - b.x, a.y - b.y);
+}
+
+static bool operator<(const pt& a, const pt& b) {
+	return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+static pt::T dot(pt a, pt b) {
+	return a.x*b.x + a.y*b.y;
+}
+
+// > 0, if a clockwise b, for example a=(1,0),b=(-1,1) 
+static pt::T cross(pt a, pt b) {
+	return a.x*b.y - a.y*b.x;
+}
+
+//between b - a and c - a
+// > 0 if ab clockwise ac
+static pt::T cross(pt a, pt b, pt c) {
+	return cross(b - a, c - a);
+}
+
+bool cmp(pt a, pt b) {
+	return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+bool cw(pt a, pt b, pt c) {
+	return a.x*(b.y - c.y) + b.x*(c.y - a.y) + c.x*(a.y - b.y) < 0;
+}
+
+bool ccw(pt a, pt b, pt c) {
+	return a.x*(b.y - c.y) + b.x*(c.y - a.y) + c.x*(a.y - b.y) > 0;
+}
+/***********************/
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
+	int n;
+	cin >> n;
+
+	vector<pt> v(n);
+	forn(i, n) {
+		cin >> v[i].x >> v[i].y;
+	}
+
+	vector<pair<pt, pt>> segments;
+
+	forn(i, n) {
+		fore(j, i + 1, n) {
+			if (v[i].y == v[j].y) {
+				if (v[i].x < v[j].x)
+					segments.push_back({ v[i], v[j] });
+				else
+					segments.push_back({ v[j], v[i] });
+			} else if (v[i].y < v[j].y)
+				segments.push_back({ v[i], v[j] });
+			else
+				segments.push_back({ v[j], v[i] });
+		}
+	}
+
+	auto cmp = [](const pair<pt, pt>& a, const pair<pt, pt>& b) {
+		//a.first will be common
+		pt aa = a.second - a.first;
+		pt bb = b.second - b.first;
+		auto cr = cross(aa, bb);
+		if (cr != 0)
+			return cr < 0;
+		return ((ll)aa.x*aa.x + (ll)aa.y*aa.y) < ((ll)bb.x*bb.x + (ll)bb.y*bb.y);
+	};
+
+	auto eq = [](const pair<pt, pt>& a, const pair<pt, pt>& b) {
+		pt aa = a.second - a.first;
+		pt bb = b.second - b.first;
+		return cross(aa, bb) == 0 && ((ll)aa.x*aa.x + (ll)aa.y*aa.y) == ((ll)bb.x*bb.x + (ll)bb.y*bb.y);
+	};
+
+	sort(all(segments), cmp);
+
+	if (!segments.empty())
+		segments.push_back(segments[0]);///
+
+	ll pairs = 0;
+	ll eqcnt = 0;
+	fore(i, 1, sz(segments)+1) {
+		if (i < sz(segments) && eq(segments[i - 1], segments[i])) {
+			if (!eqcnt)
+				eqcnt = 2;
+			else
+				eqcnt++;
+		}
+		else if (eqcnt>0) {
+			pairs += eqcnt*(eqcnt-1)/2;
+			eqcnt = 0;
+		}
+	}
+
+	cout << pairs / 2;
+
 	return 0;
 }
