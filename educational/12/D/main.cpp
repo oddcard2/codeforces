@@ -64,9 +64,82 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+void sieve(int n, vector<char>& prime) {
+	prime[0] = prime[1] = false;
+	for (int i = 2; i*i <= n; ++i)
+		if (prime[i])
+			for (int j = i * i; j <= n; j += i)
+				prime[j] = false;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	rvn;
+
+	vi cnt(1000000 + 1);
+	int mm = 0;
+	forn(i, n) {
+		cnt[v[i]]++;
+		if (v[i] > mm)
+			mm = v[i];
+	}
+
+	int k = mm *2;
+	vector<char> prime(k + 1, true);
+	sieve(k, prime);
+
+	sort(all(v));
+	auto ne = unique(all(v));
+	v.erase(ne, end(v));
+
+	int a, b;
+	int mx = 1;
+	forn(i, sz(v)) {
+		fore(j, i + 1, sz(v)) {
+			int sm = v[i] + v[j];
+			if (prime[sm]) {
+				int c = 2;
+				if (v[i] == 1) {
+					c = cnt[v[i]] + 1;
+				}
+				else if (v[j] == 1) {
+					c = cnt[v[j]] + 1;
+				}
+				if (c > mx) {
+					a = v[i];
+					b = v[j];
+					mx = c;
+				}
+			}
+		}
+
+	}
+	
+
+	
+	if (mx == 1 || cnt[1] > mx) {
+		int a = v[0];
+		int nn = 1;
+		if (cnt[1] > 0) {
+			a = 1;
+			nn = cnt[1];
+		}
+		cout << nn << '\n';
+		forn(i,nn)
+			cout << a << " ";
+	}
+	else {
+		if (a > b)
+			swap(a, b);
+		int nn = (a == 1) ? cnt[a] : 1;
+		cout << nn + 1 << '\n';
+		forn(i, nn) {
+			cout << a << " ";
+		}
+		cout << b << " ";
+	}
 	
 	return 0;
 }
