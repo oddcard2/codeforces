@@ -64,9 +64,36 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+template<typename T>
+T gcd(T a, T b) {
+	while (b) {
+		a %= b;
+		swap(a, b);
+	}
+	return a;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	
+
+	ll n, a, b, p, q;
+	cin >> n >> a >> b >> p >> q;
+
+	ll na = n / a;
+	ll nb = n / b;
+	ll nok = (a*b) / gcd(a, b);
+	ll nab = n / nok;
+
+	ll ans = 0;
+	if (p > q) {
+		ll common = (p*nab);
+		ans = na * p + (nb - nab) * q;
+	}
+	else {
+		ll common = (q*nab);
+		ans = (na - nab)*p + nb * q;
+	}
+	cout << ans;
 	return 0;
 }
