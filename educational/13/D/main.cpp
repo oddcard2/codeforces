@@ -19,6 +19,7 @@ typedef long long ll;
 typedef long double ld;
 
 typedef vector<int> vi;
+typedef vector<ll> vll;
 
 typedef pair<int, int> pii;
 typedef pair<ll, int> pli;
@@ -64,9 +65,36 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+pll mul2(pll a, pll b) {
+	ll na = (a.first*b.first) % mod;
+	ll nb = add((a.first*b.second) % mod, a.second);
+	return { na,nb };
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	ll a, b, n, x;
+	cin >> a >> b >> n >> x;
+
+	pll res = { 1,0 };
+	pll m = { a,b };
+	while (n) {
+		if (n & 1) {
+			ll na = (res.first*m.first) % mod;
+			ll nb = add((res.first*m.second) % mod, res.second);
+			res = mul2(res, m);
+		}
+
+		m = mul2(m, m);
+		n >>= 1;
+	}
 	
+	ll ans = (res.first*x) % mod + res.second;
+	ans %= mod;
+
+	cout << ans;
+
 	return 0;
 }
