@@ -38,6 +38,11 @@ def prepare(proj_name, path):
         f = os.path.join(win_dir, filename)
         replace_file_content(f, solution_id, proj_id, proj_name)
 
+def create_app_dir(out_path):
+    app_dir_path = os.path.join(out_path, 'Apps')
+    if not os.path.exists(app_dir_path):
+        os.makedirs(app_dir_path)
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Use app proj_name path")
@@ -49,4 +54,5 @@ if __name__ == '__main__':
     
     copy_template(proj_name, out_path)
     prepare(proj_name, out_path)
+    create_app_dir(out_path)
    
