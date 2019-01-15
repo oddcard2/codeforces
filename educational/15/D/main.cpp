@@ -63,10 +63,41 @@ vi v(n+1); \
 for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
-
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	ll d, k, a, b, t;
+	cin >> d >> k >> a >> b >> t;
+
+	ll max_steps = d / k + (d%k);
+
+	auto f = [&](ll s) {
+		if (s > max_steps)
+			s = max_steps;
+
+		ll stops = s ? s - 1 : 0;
 	
+		ll res = s * k*a;
+		
+		if (d >= s * k)
+			res += (d - s * k)*b;
+		else {
+			res -= (k - (d - (s-1) * k))*a;
+		}
+		if (stops)
+			res += t * (stops);
+		return res;
+	};
+
+	ll x = -1; //steps by auto
+
+	for (ll b = max_steps; b >= 1; b /= 2) {
+		while (f(x + b) > f(x + b + 1)) x += b;
+	}
+	ll res = x + 1;
+
+	cout << f(res);
+
 	return 0;
 }
