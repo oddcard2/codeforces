@@ -71,49 +71,17 @@ int main() {
 	int n, m;
 	cin >> n >> m;
 
-	vi av(n);
-	vector<tri> t(n + m);
+	rvi(a, n);
+	rvi(b, m);
+
+	int r = 0, j = 0; //last before house
 	forn(i, n) {
-		int a;
-		cin >> a;
-		t[i] = { a,1,i };
-		av[i] = a;
+		while (j + 1 < m && b[j + 1] <= a[i]) j++;
+		int rr = abs(b[j] - a[i]);
+		if (j + 1 < m)
+			rr = min(rr, abs(b[j + 1] - a[i]));
+		r = max(r, rr);
 	}
-
-	vi bv(m);
-	forn(i, m) {
-		int a;
-		cin >> a;
-		t[n + i] = { a,0,i };
-		bv[i] = a;
-	}
-
-	sort(all(t));
-
-	int r = 0;
-	vector<int> lastvn;
-	vector<int> vv;
-
-	vector<int> hm;
-	forn(i, n + m) {
-		int c, type, id;
-		tie(c, type, id) = t[i];
-		if (type == 0) { //v
-			lastvn.push_back(id);
-		}
-		else {
-			int vn = 0;
-			if (!lastvn.empty()) {
-				vn = lastvn.back();
-			}
-			int rr = abs(bv[vn] - c);
-			if (vn + 1 < m)
-				rr = min(rr, abs(c - bv[vn + 1]));
-
-			r = max(r, rr);
-		}
-	}
-
 	cout << r;
 	
 	return 0;
