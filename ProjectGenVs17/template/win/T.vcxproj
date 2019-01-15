@@ -116,6 +116,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
     </Link>
+	<PostBuildEvent>
+      <Command>copy "$(TargetPath)" $(SolutionDir)..\..\Apps\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
