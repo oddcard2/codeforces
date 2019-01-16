@@ -67,6 +67,70 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	string x;
+	cin >> x;
+
+	auto ppos = x.find_first_of('.');
+	if (ppos == string::npos) {
+		x.push_back('.');
+		ppos = sz(x) - 1;
+	}
+
+	//sep by .
+	string before_point = x.substr(0, ppos);
+	string after_point = x.substr(ppos + 1);
+
+	//remove zeros
+	auto fnz = before_point.find_first_not_of('0');
+	if (fnz == string::npos)
+		before_point = "";
+	else
+		before_point = before_point.substr(fnz);
+	int after_end = -1;
+	ford(i, sz(after_point)) {
+		if (after_point[i] != '0') {
+			after_end = i;
+			break;
+		}
+	}
+	after_point = after_point.substr(0, after_end + 1);
+	if (before_point.empty() && after_point.empty()) {
+		cout << "0";
+		return 0;
+	}
+
+	int degree = 0;
+	auto first_not_zero_after = after_point.find_first_not_of('0');
+	if (before_point.empty()) { //0.(0)aa
+		before_point = after_point[first_not_zero_after];
+		after_point = after_point.substr(first_not_zero_after + 1);
+		degree = -((int)first_not_zero_after + 1);
+	}
+	else {
+		after_point = before_point.substr(1) + after_point;
+		degree = sz(before_point) - 1;
+		before_point = before_point[0];
+	}
+
+
+	after_end = -1;
+	ford(i, sz(after_point)) {
+		if (after_point[i] != '0') {
+			after_end = i;
+			break;
+		}
+	}
+	after_point = after_point.substr(0, after_end + 1);
+
+	cout << before_point;
+	if (!after_point.empty()) {
+		cout << ".";
+		cout << after_point;
+	}
+	if (degree) {
+		cout << "E" << degree;
+	}
 	
 	return 0;
 }

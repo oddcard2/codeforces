@@ -63,6 +63,32 @@ vi v(n+1); \
 for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
+#if 1
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	
+	ll d, k, a, b, t;
+	cin >> d >> k >> a >> b >> t;
+
+	ll stops = (d / k);
+	if (stops && !(d % k))
+		stops -= 1;
+	ll ans1 = (stops)*t + (d / k)*k*a + (d % k)*a;
+	ll ans2 = ans1;
+	if (d > k)
+		ans2 = k * a + (d - k)*b;
+
+	stops = (d / k);
+	if (stops)
+		stops -= 1;
+	ll ans3 = (stops)*t + (d / k)*k*a + (d % k)*b;
+
+	ll ans = min(min(ans1, ans2), ans3);
+	cout << ans;
+	return 0;
+}
+#else //min search by binary search
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -101,3 +127,4 @@ int main() {
 
 	return 0;
 }
+#endif

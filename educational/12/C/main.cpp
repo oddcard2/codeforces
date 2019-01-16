@@ -67,6 +67,28 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	string s;
+	cin >> s;
+
+	int cnt = 0;
+	fore(i, 1, sz(s)) {
+		if (s[i - 1] == s[i]) {
+			char a = s[i - 1];
+			char b = a;
+			if (i < sz(s) - 1)
+				b = s[i + 1];
+
+			char c;
+			forn(j, 3) {
+				c = 'a' + j;
+				if (a != c && b != c) break;
+			}
+			s[i] = c;
+		}
+	}
+
+	cout << s;
 	
 	return 0;
 }
