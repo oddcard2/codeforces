@@ -44,15 +44,19 @@ def create_app_dir(out_path):
         os.makedirs(app_dir_path)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print("Use app proj_name path")
-        print("For example: generate.py A ../cf544div2")
+    if len(sys.argv) < 3:
+        print("Use app path proj_names")
+        print('For example:')
+        print('\tgenerate.py ../cf544div2 A')
+        print('\tgenerate.py ../cf544div2 A B C D E F')
         sys.exit()
 
-    proj_name=str(sys.argv[1])
-    out_path=str(sys.argv[2])
-    
-    copy_template(proj_name, out_path)
-    prepare(proj_name, out_path)
-    create_app_dir(out_path)
+    projects = [str(x) for x in sys.argv[2:]]
+    for proj_name in projects:
+        out_path=str(sys.argv[1])
+        print('Generating template for project {0} in {1}'.format(proj_name, out_path))
+
+        copy_template(proj_name, out_path)
+        prepare(proj_name, out_path)
+        create_app_dir(out_path)
    
