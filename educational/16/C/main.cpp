@@ -68,5 +68,62 @@ int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
+	int n;
+	cin >> n;
+
+	vi types[2];
+	int cnts[2] = { 0,0 };
+	forn(i, n*n) {
+		int v = i + 1;
+		types[v % 2].push_back(v);
+	}
+
+	vector<vi> m(n, vi(n));
+
+	std::function<void(int, int, int)> f = [&](int t, int x, int o) {
+
+		if (o == 0) {
+			m[x][x] = types[t % 2][cnts[t % 2]];
+			t++;
+			return;
+		}
+		//row ->
+		int st = t;
+		int l = 2 * o + 1;
+		fore(i, x, x + l-1) {
+			m[x][i] = types[t % 2][cnts[t %2]];
+			cnts[t % 2]++;
+			t++;
+		}
+		fore(i, x, x + l-1) {
+			m[i][x + l-1] = types[t % 2][cnts[t % 2]];
+			cnts[t % 2]++;
+			t++;
+		}
+
+		for (int i = x + l - 1; i>x; --i) {
+			m[x + l - 1][i] = types[t % 2][cnts[t % 2]];
+			cnts[t % 2]++;
+			t++;
+		}
+
+		for (int i = x + l - 1; i > x; --i) {
+			m[i][x] = types[t % 2][cnts[t % 2]];
+			cnts[t % 2]++;
+			t++;
+		}
+
+		f(t+1, x + 1, o - 1);
+
+	};
+
+	f((((n + 1) / 2) % 2), 0, n / 2);
+
+	forn(i,n) {
+		forn(j, n) {
+			cout << m[i][j] << " ";
+		}
+		cout << '\n';
+	}
 	return 0;
 }
