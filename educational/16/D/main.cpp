@@ -64,9 +64,127 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 
 ////////////
 
+/***********************/
+template<typename T>
+T gcdex(T a, T b, T & x, T & y) {
+	if (a == 0) {
+		x = 0; y = 1;
+		return b;
+	}
+	T x1, y1;
+	T d = gcdex(b%a, a, x1, y1);
+	x = y1 - (b / a) * x1;
+	y = x1;
+	return d;
+}
+
+template<typename T>
+bool find_any_solution(T a, T b, T c, T & x0, T & y0, T & g) {
+	g = gcdex(abs(a), abs(b), x0, y0);
+	if (c % g != 0)
+		return false;
+	x0 *= c / g;
+	y0 *= c / g;
+	if (a < 0)   x0 *= -1;
+	if (b < 0)   y0 *= -1;
+	return true;
+}
+/***********************/
+
+template<typename T>
+pair<T, T> bin_search(T n, std::function<bool(T)> ok) {
+	T l = -1, r = n, mid;
+	while (r - l > 1) {
+		mid = (l + r) / 2;
+		if (ok(mid))
+			r = mid;
+		else
+			l = mid;
+	}
+	return { l,r };
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	ll a1, b1, a2, b2, L, R;
+	cin >> a1 >> b1 >> a2 >> b2 >> L >> R;
+
+	//a1,a2>0
+	ll a = a1, b = -a2, c = b2 - b1;
+	//a>0, b<0
+
+	ll k0, l0, g;
+	find_any_solution(a, b, c, k0, l0, g);
+
+	//-a/g < 0
+	//b/g = (-a2)/g < 0
+
+	//find k when x,y >= 0
+	ll maxk1 = (k0 * g) / (-b);
+	if (maxk1*b / g + k0 < 0) {
+		if ((maxk1 - 1)*b / g + k0 >= 0) {
+			maxk1--;
+		}
+		else if ((maxk1 + 1)*b / g + k0 >= 0) {
+			maxk1++;
+		}
+	}
+	ll maxk2 = (l0*g) / a;
+	if (maxk2*(-a) / g + l0 < 0) {
+		if ((maxk2 - 1)*(-a) / g + l0 >= 0) {
+			maxk2--;
+		}
+		else if ((maxk2 + 1)*(-a) / g + l0 >= 0) {
+			maxk2++;
+		}
+	}
+	ll maxk = min(maxk1, maxk2);
+
+	//finds k bound for L then for R
+
+	ll coef = -a / g;
+	ll start_bound = maxk;
+
+	ll step = 1;
+
+	ll startk = maxk, endk = maxk;
+	if (a2*(start_bound*coef + l0) + b2 < L) {
+		while (a2*(start_bound*coef + l0) + b2 < L) {
+			start_bound -= step;
+			step *= 2;
+		}
+
+		auto res = bin_search<ll>(-(start_bound - maxk), [&](ll v) {
+			ll y = (start_bound + v) * coef + l0;
+			return a2*y+b2  <= L;
+		});
+		startk = start_bound + res.first;
+	}
+
+	//return 0;
+	ll end_bound = maxk;
+	if (a2*(end_bound*coef + l0) + b2 < R) {
+		step = 1;
+		end_bound = start_bound;
+		while (a2*(end_bound*coef + l0) + b2 < R) {
+			end_bound -= step;
+			step *= 2;
+		}
+
+		auto res = bin_search<ll>(-(end_bound - maxk), [&](ll v) {
+			ll y = (end_bound + v) * coef + l0;
+			return a2 * y + b2 <= R;
+		});
+		endk = end_bound + res.second;
+	}
+	else {
+		cout << "0";
+		return 0;
+	}
+
+	cout << -(endk - startk) + 1;
 	
 	return 0;
 }
