@@ -91,19 +91,6 @@ bool find_any_solution(T a, T b, T c, T & x0, T & y0, T & g) {
 }
 /***********************/
 
-template<typename T>
-pair<T, T> bin_search(T n, std::function<bool(T)> ok) {
-	T l = -1, r = n, mid;
-	while (r - l > 1) {
-		mid = (l + r) / 2;
-		if (ok(mid))
-			r = mid;
-		else
-			l = mid;
-	}
-	return { l,r };
-}
-
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -116,7 +103,10 @@ int main() {
 	//a>0, b<0
 
 	ll k0, l0, g;
-	find_any_solution(a, b, c, k0, l0, g);
+	if (!find_any_solution(a, b, c, k0, l0, g)) {
+		cout << "0";
+		return 0;
+	}
 
 	//-a/g < 0
 	//b/g = (-a2)/g < 0
@@ -142,49 +132,24 @@ int main() {
 	}
 	ll maxk = min(maxk1, maxk2);
 
-	//finds k bound for L then for R
+	//finds start_v for min k, then calc step and finds how many steps until >=L and until max val < R
 
 	ll coef = -a / g;
 	ll start_bound = maxk;
 
-	ll step = 1;
-
-	ll startk = maxk, endk = maxk;
-	if (a2*(start_bound*coef + l0) + b2 < L) {
-		while (a2*(start_bound*coef + l0) + b2 < L) {
-			start_bound -= step;
-			step *= 2;
-		}
-
-		auto res = bin_search<ll>(-(start_bound - maxk), [&](ll v) {
-			ll y = (start_bound + v) * coef + l0;
-			return a2*y+b2  <= L;
-		});
-		startk = start_bound + res.first;
+	ll start_v = a2 * (start_bound*coef + l0) + b2;
+	ll step = abs(a2 * coef);
+	if (start_v < L) {
+		start_bound -= abs(L - start_v) / step + ((L - start_v) % step != 0);
 	}
-
-	//return 0;
-	ll end_bound = maxk;
-	if (a2*(end_bound*coef + l0) + b2 < R) {
-		step = 1;
-		end_bound = start_bound;
-		while (a2*(end_bound*coef + l0) + b2 < R) {
-			end_bound -= step;
-			step *= 2;
-		}
-
-		auto res = bin_search<ll>(-(end_bound - maxk), [&](ll v) {
-			ll y = (end_bound + v) * coef + l0;
-			return a2 * y + b2 <= R;
-		});
-		endk = end_bound + res.second;
-	}
-	else {
+	else if (start_v > R) {
 		cout << "0";
 		return 0;
 	}
-
-	cout << -(endk - startk) + 1;
 	
+	ll end_bound = maxk - abs(R - start_v) / step;
+
+	cout << -(end_bound - start_bound) + 1;
+
 	return 0;
 }
