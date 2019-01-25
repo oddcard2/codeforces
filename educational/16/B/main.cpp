@@ -67,6 +67,13 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	rvn;
+
+	sort(all(v));
+
+	int pos = (n % 2 == 0) ? (n - 1) / 2 : n / 2;
+	cout << v[pos];
 	
 	return 0;
 }
