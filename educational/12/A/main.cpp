@@ -67,6 +67,22 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int a, ta, b, tb;
+	string st;
+	cin >> a >> ta >> b >> tb >> st;
+	int h = stoi(st.substr(0, 2));
+	int m = stoi(st.substr(3, 2));
+	int stm = h * 60 + m;
+
+	int s = max(4 * 60+59, stm - tb);
+	int e = min(24 * 60, stm + ta);
 	
+	int cnt = 0;
+	for (int i = 5 * 60; i < 24 * 60; i += b) {
+		if (i > s && i < e)
+			cnt++;
+	}
+	cout << cnt;
 	return 0;
 }

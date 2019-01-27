@@ -67,6 +67,31 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	
+
+	int n, m, k;
+	cin >> n >> m >> k;
+
+	vi g(k);
+	forn(i, k) cin >> g[i];
+	list<int> l(all(g));
+
+	int ans = 0;
+	forn (i, n) 
+		forn(j, m) {
+		int t;
+		cin >> t;
+
+		int cost = 1;
+		for (auto s = begin(l); s != end(l); ++s, cost++) {
+			if (*s == t) {
+				l.erase(s);
+				ans += cost;
+				break;
+			}
+		}
+		l.push_front(t);
+	}
+
+	cout << ans;
 	return 0;
 }

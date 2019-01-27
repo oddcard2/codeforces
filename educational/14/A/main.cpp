@@ -67,6 +67,18 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	rvn;
+
+	int cnt = 0;
+	forn(i, n)
+		if (v[i] == 0)
+			cnt++;
+
+	if ((n == 1 && cnt == 0) || (n > 1 && cnt == 1))
+		cout << "YES";
+	else
+		cout << "NO";
 	
 	return 0;
 }

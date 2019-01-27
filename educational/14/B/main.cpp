@@ -68,5 +68,47 @@ int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
+	string s;
+	cin >> s;
+
+	auto is_s = [](char c) {
+		return c == 'A'
+			||
+			c == 'H' || c == 'I'
+			|| c == 'M' || c == 'o'
+			|| c == 'T'
+			|| c == 'O' || c == 'U'
+			|| c == 'v' || c == 'V'
+			|| c == 'w' || c == 'W'
+			|| c == 'x' || c == 'X'
+			|| c == 'Y';
+	};
+
+	bool ok = true;
+	int n = sz(s);
+	if (n % 2 != 0 
+		&& !is_s(s[n/2])) {
+		ok = false;
+	}
+	else {
+		for (int i = 0; i < n / 2; i++) {
+			int j = n - i - 1;
+			if (is_s(s[i]) && s[i] == s[j])
+				continue;
+			if (s[i] == 'b' && s[j] == 'd')
+				continue;
+			if (s[i] == 'd' && s[j] == 'b')
+				continue;
+			if (s[i] == 'p' && s[j] == 'q')
+				continue;
+			if (s[i] == 'q' && s[j] == 'p')
+				continue;
+			ok = false;
+		}
+	}
+	if (ok)
+		cout << "TAK";
+	else
+		cout << "NIE";
 	return 0;
 }

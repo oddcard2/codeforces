@@ -67,6 +67,24 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int y;
+	cin >> y;
+
+	auto is_v = [](int x) { return x % 400 == 0 || (x % 4 == 0 && x % 100 != 0); };
+	bool v1 = is_v(y);
+	bool v2;
+	int r = 0;
+	do {
+		y++;
+		v2 = is_v(y);
+		if (v2)
+			r += 366 % 7;
+		else
+			r += 365 % 7;
+		r %= 7;
+	} while (r != 0 || v2 != v1);
 	
+	cout << y;
 	return 0;
 }

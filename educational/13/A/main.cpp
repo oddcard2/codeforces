@@ -67,6 +67,16 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int n, k;
+	cin >> n >> k;
+
+	if (n%k == 0) {
+		cout << (n / k + 1)*k;
+	}
+	else {
+		cout << (ll)ceil((double)n / k)*k;
+	}
 	
 	return 0;
 }
