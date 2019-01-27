@@ -68,5 +68,30 @@ int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	
+	rvn;
+
+	map<int, int> m;
+
+	int mx = *max_element(all(v));
+	vi deg;
+	
+	ll d = 1;
+	do {
+		d *= 2;
+		deg.push_back((int)d);
+	} while (d < 2ll * mx);
+
+	ll cnt = 0;
+	forn(i, n) {
+		for (auto g : deg) {
+			if (g > v[i]) {
+				cnt += m[g - v[i]];
+			}
+		}
+		m[v[i]]++;
+	}
+
+	cout << cnt;
+
 	return 0;
 }

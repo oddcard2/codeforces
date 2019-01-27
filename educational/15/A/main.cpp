@@ -67,6 +67,23 @@ for (int i = 0; i < n; i++) cin >> v[i+1];
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	rvn;
+
+	int cnt = 1;
+	int mx = 1;
+	for (int i = 1; i < n; ++i) {
+		if (v[i] > v[i - 1]) {
+			cnt++;
+		}
+		else {
+			mx = max(mx, cnt);
+			cnt = 1;
+		}
+	}
+	mx = max(mx, cnt);
+
+	cout << mx;
 	
 	return 0;
 }
