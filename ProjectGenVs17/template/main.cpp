@@ -7,11 +7,11 @@ using namespace std;
 const int mod = 1000000007;
 
 template<typename T>
-inline int add(T a, T b) { return a + b >= mod ? a + b - mod : a + b; }
+inline T add(T a, T b) { return a + b >= mod ? a + b - mod : a + b; }
 template<typename T>
 inline void inc(T& a, T b) { a = add(a, b); }
 template<typename T>
-inline int sub(T a, T b) { return a - b < 0 ? a - b + mod : a - b; }
+inline T sub(T a, T b) { return a - b < 0 ? a - b + mod : a - b; }
 template<typename T>
 inline void dec(T& a, T b) { a = sub(a, b); }
 
@@ -19,6 +19,7 @@ typedef long long ll;
 typedef long double ld;
 
 typedef vector<int> vi;
+typedef vector<ll> vll;
 
 typedef pair<int, int> pii;
 typedef pair<ll, int> pli;

@@ -117,8 +117,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
     </Link>
-	<PostBuildEvent>
-      <Command>copy "$(TargetPath)" $(SolutionDir)..\..\Apps\</Command>
+    <PostBuildEvent>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' == ''">copy "$(TargetPath)" $(SolutionDir)..\..\Apps\</Command>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' != ''">"$(SolutionDir)copy.bat" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
