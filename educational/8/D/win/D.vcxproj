@@ -86,6 +86,10 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' == ''">copy "$(TargetPath)" $(SolutionDir)..\..\Apps\</Command>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' != ''">"$(SolutionDir)copy.bat" "$(TargetPath)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -113,6 +117,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' == ''">copy "$(TargetPath)" $(SolutionDir)..\..\Apps\</Command>
+      <Command Condition="'$(SOLUTIONS_EXE_PATH)' != ''">"$(SolutionDir)copy.bat" "$(TargetPath)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
