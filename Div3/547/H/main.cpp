@@ -95,10 +95,85 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 #endif
 
 ////////////
+pair<int, int> bin_search(int n, std::function<bool(int)> ok) {
+	int l = -1, r = n, mid;
+	while (r - l > 1) {
+		mid = (l + r) / 2;
+		if (ok(mid))
+			r = mid;
+		else
+			l = mid;
+	}
+	return { l,r };
+}
 
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int n, k;
+	cin >> n >> k;
+
+	vector<vector<pii>> g(n);
+
+	forn(i, n - 1) {
+		int a, b;
+		cin >> a >> b;
+
+		g[a-1].push_back(mp(b-1, i));
+		g[b-1].push_back(mp(a-1, i));
+	}
+
+	vector<int> used(n);
+	int cnt = 0;
+
+	int curr = 0;
+	int ncol;
+	vector<int> colors(n);
+	bool real = false;
+	function<void(int, int)> dfs = [&](int v, int col) {
+		used[v] = 1;
+
+		int i = 1;
+		if (col == -1) {
+			col = 0;
+			i = 0;
+		}
+		if (sz(g[v]) > ncol) {
+			cnt++;
+		}
+		int edge_col = (col + i) % ncol;
+		for (auto u : g[v]) {
+			if (used[u.first])
+				continue;
+			
+			colors[u.second] = edge_col;
+			dfs(u.first, edge_col);
+			edge_col = (edge_col + 1) % ncol;
+		}
+	};
+
+	function<bool(int)> color = [&](int m) {
+		fill(all(used), 0);
+		cnt = 0;
+		curr = 0;
+		if (m == 0)
+			return false;
+
+		ncol = m;
+		dfs(0, -1);
+
+		return cnt <= k;
+	};
 	
+	auto res = bin_search(n - 1, color);
+
+	color(res.second);
+	
+	cout << res.second << endl;
+	forn(i, sz(colors)-1) {
+		cout << colors[i] + 1 << " ";
+	}
+
 	return 0;
 }
