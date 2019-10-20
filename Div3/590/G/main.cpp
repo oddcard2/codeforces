@@ -96,9 +96,46 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+static int bit_count(int v) {
+	return (int)std::bitset<32>(v).count();
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	string s;
+	cin >> s;
+
+	vi dp(1 << 20);
+
+	forn(i, sz(s)) {
+		vi used(20);
+		int mask = 0;
+		for (int j = 0; i + j < sz(s); j++) {
+			if (used[s[i + j] - 'a']) break;
+			used[s[i + j] - 'a'] = true;
+
+			mask |= (1 << (s[i + j] - 'a'));
+			dp[mask] = bit_count(mask);
+		}
+	}
+
+	fore(mask, 1, 1 << 20) {
+		forn(pos, 20) {
+			if (mask & (1 << pos)) {
+				dp[mask] = max(dp[mask], dp[mask ^ (1 << pos)]);
+			}
+		}
+ 	}
+
+	int ans = 0;
+	fore(mask, 1, 1 << 20) {
+		int inv = (~mask) & ((1 << 20) - 1);
+		ans = max(ans, dp[mask] + dp[inv]);
+	}
+
+	cout << ans;
 	
 	return 0;
 }
