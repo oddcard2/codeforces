@@ -99,6 +99,30 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	vi d;
+
+	ll val = 1;
+	do {
+		d.push_back(val);
+		val *= 3;
+	} while (val <= ll(3e18));
+
+	int q; cin >> q;
+	forn(k, q) {
+		ll n; cin >> n;
+
+		val = n;
+		auto it = std::lower_bound(all(d), val);
+		if (*it == n) {
+			cout << n << '\n';
+			continue;
+		}
+		int num = (int)distance(begin(d), it)+1;
+		int half1 = num / 2;
+		int half2 = num - half1;
+		
+	}
 	
 	return 0;
 }

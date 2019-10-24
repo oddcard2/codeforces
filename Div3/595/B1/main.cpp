@@ -10,6 +10,8 @@ template<typename T>
 inline T add(T a, T b) { return a + b >= mod ? a + b - mod : a + b; }
 template<typename T>
 inline void inc(T& a, T b) { a = add(a, b); }
+
+
 template<typename T>
 inline T sub(T a, T b) { return a - b < 0 ? a - b + mod : a - b; }
 template<typename T>
@@ -96,9 +98,52 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+//a indexes from 1! so a has size len+1 and a[0] is not used
+vector<vi> perm2cycles(const vi& a) {
+	vector<vi> res;
+	vector<bool> used(a.size()); //elems starts with 1!
+
+	for (int i = 1; i < (int)a.size(); i++) {
+		if (used[i])
+			continue;
+
+		int start = i, curr = start;
+		res.emplace_back(vi{});
+
+		do {
+			res.back().push_back(curr);
+			used[curr] = true;
+			curr = a[curr];
+		} while (curr != start);
+	}
+	return res;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int q;
+	cin >> q;
+
+	forn(k, q) {
+		rvn1;
+
+		vi res(n+1);
+		auto c = perm2cycles(v);
+
+		forn(i, sz(c)) {
+			forn(j, sz(c[i])) {
+				res[c[i][j]] = sz(c[i]);
+			}
+		}
+		fore(i, 1, n+1) {
+			cout << res[i] << " ";
+		}
+		cout << '\n';
+	}
+
+	
 	
 	return 0;
 }

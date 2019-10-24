@@ -99,6 +99,30 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int q;
+	cin >> q;
+
+	forn(k, q) {
+		rvn;
+
+		bool ok = true;
+		sort(all(v));
+		if (n > 1) {
+			fore(j, 1, n) {
+				if (abs(v[j] - v[j - 1]) == 1) {
+					ok = false;
+					break;
+				}
+			}
+		}
+		if (ok) {
+			cout << "1\n";
+		}
+		else {
+			cout << "2\n";
+		}
+	}
 	
 	return 0;
 }
