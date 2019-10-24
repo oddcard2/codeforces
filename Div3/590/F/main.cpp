@@ -96,6 +96,19 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+ll pos(int k, int x) {
+	if (x == k)
+		return 1;
+	if (x > k)
+		return x;
+	else
+		return x + 1;
+}
+
+ll fs(int k, int xi, int xj) {
+	return (ll)abs(pos(k, xi) - pos(k, xj));
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -109,6 +122,41 @@ int main() {
 		cin >> v[i];
 	}
 
+
+	multimap<int, pair<int, int>> mm;
+	fore(i, 1, m) {
+		if (i > 0)
+			mm.insert({ v[i - 1], { v[i - 1], v[i] } });
+		mm.insert({ v[i],{ v[i - 1], v[i] } });
+	}
+
+	ll s = 0;
+	forn(i, m - 1) {
+		s += (ll)abs(v[i] - v[i + 1]);
+	}
+
+	cout << s << " ";
+
+	fore(i, 2, n + 1) {
+		int last = i - 1;
+		int curr = i;
+
+		auto last_pairs = mm.equal_range(last);
+		for (auto j = last_pairs.first; j != last_pairs.second; ++j) {
+			s -= fs(last, j->second.first, j->second.second);
+			s += fs(curr, j->second.first, j->second.second);
+		}
+
+		auto curr_pairs = mm.equal_range(curr);
+		for (auto j = curr_pairs.first; j != curr_pairs.second; ++j) {
+			if (j->second.first == last || j->second.second == last)
+				continue;
+			s -= fs(last, j->second.first, j->second.second);
+			s += fs(curr, j->second.first, j->second.second);
+		}
+
+		cout << s << " ";
+	}
 	
 	return 0;
 }
