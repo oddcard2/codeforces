@@ -106,19 +106,20 @@ def process_projects(dest, project_names, uuids):
     
     return True
     
-def gen_names_and_uuids(count):
-    names = [s for s in string.ascii_uppercase[:count]]
+def gen_names_and_uuids(count, names = []):
+    if len(names) == 0:
+        names = [s for s in string.ascii_uppercase[:count]]
     uuids = [get_uuid() for _ in range(count)]
     return (names, uuids)
     
-def create(dest, count):
-    if count > 26:
+def create(dest, count, names=[]):
+    if len(names) == 0 and count > 26:
         print('Number of projects exceeded!')
         return False
-
-    proj_names, proj_uuids = gen_names_and_uuids(count)
+        
+    proj_names, proj_uuids = gen_names_and_uuids(count, names)
     solution_uuid = get_uuid()
-    
+        
     if not copy_files_tree(dest, proj_names):
         print('Failed to copy files to {0}'.format(dest))
         return False
@@ -134,11 +135,17 @@ def create(dest, count):
     return True
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         print("Use app path num_of_projects")
         print('For example:')
         print('\tgenerate.py ../cf544div2 5')
+        print('\tgenerate.py ../cf544div2 A1 A2 B C1 C2')
         sys.exit()
 
-    create(sys.argv[1], int(sys.argv[2]))
+    if sys.argv[2].isdigit():
+        count = int(sys.argv[2])
+        create(sys.argv[1], int(sys.argv[2]))
+    else:
+        names = sys.argv[2:]
+        create(sys.argv[1], len(names), names)
    
