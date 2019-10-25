@@ -96,11 +96,94 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+template<typename T>
+pair<T, T> bin_search(T n, std::function<bool(T)> ok) {
+	T l = -1, r = n, mid;
+	while (r - l > 1) {
+		mid = (l + r) / 2;
+		if (ok(mid))
+			r = mid;
+		else
+			l = mid;
+	}
+	return { l,r };
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	vi d;
+	vll d;
+
+	ll val = 1;
+	do {
+		d.push_back(val);
+		val *= 3;
+	} while (val <= ll(3e18));
+
+	auto get_val = [&](ll mask, int mask_len) {
+		ll res = 0;
+		forn(b, mask_len) {
+			if (mask & (1ll << b)) {
+				res += d[b];
+			}
+		}
+		return res;
+	};
+
+	// cout << "test = " << get_val(7, 4) << '\n';
+
+	int q; cin >> q;
+	forn(k, q) {
+		ll n; cin >> n;
+
+		auto it = std::lower_bound(all(d), n);
+		if (*it == n) {
+			cout << n << '\n';
+			continue;
+		}
+		val = *it;
+		
+		int mask_len = (int)distance(begin(d), it) + 1;
+
+		auto check = [&](ll mask) {
+			return get_val(mask, mask_len) >= n;
+		};
+
+		auto res = bin_search<ll>((ll(1) << mask_len), check);
+		cout << get_val(res.second, mask_len) << '\n';
+	}
+
+	return 0;
+}
+
+
+#if 0
+template<typename T>
+void init_bits(vector<T>& vals, vector<T>& bit_vals, int bits_count, int offset = 0) {
+	for (T b = 0; b < (T)bits_count; b++) {
+		vals[T(1) << b] = bit_vals[b + offset];
+	}
+}
+
+template<typename T>
+void mask_recalc(int mask_len, vector<T>& vals) {
+	T all_bits_mask = ((T(1) << mask_len) - 1);
+	for (T v = 1; v < (T(1) << mask_len); v++) {
+		for (T b = 0; b < (T)mask_len; b++) {
+			if (v & (T(1) << b)) {
+				vals[v] = vals[(v & ~(T(1) << b)) & all_bits_mask] + vals[(T(1) << b)];
+				break;
+			}
+		}
+	}
+}
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+
+	vll d;
 
 	ll val = 1;
 	do {
@@ -118,11 +201,42 @@ int main() {
 			cout << n << '\n';
 			continue;
 		}
+		val = *it;
 		int num = (int)distance(begin(d), it)+1;
 		int half1 = num / 2;
 		int half2 = num - half1;
 		
+		vll hv1(1 << half1);
+		vll hv2(1 << half2);
+
+		init_bits(hv1, d, half1, 0);
+		init_bits(hv2, d, half2, half1);
+
+		mask_recalc(half1, hv1);
+		mask_recalc(half2, hv2);
+
+		sort(all(hv2));
+		ll best = val;
+		forn(i, sz(hv1)) {
+			if (hv1[i] == n) {
+				best = n;
+				break;
+			}
+			if (hv1[i] > n) {
+				best = min(best, hv1[i]);
+			}
+			else {
+				ll diff = n - hv1[i];
+				it = std::lower_bound(all(hv2), diff);
+				if (it != end(hv2)) {
+					best = min(best, hv1[i] + *it);
+				}
+			}
+		}
+
+		cout << best << '\n';
 	}
 	
 	return 0;
 }
+#endif
