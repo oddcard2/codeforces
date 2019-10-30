@@ -30,7 +30,7 @@ typedef tuple<int, int, int> tri;
 #define ford(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define fore(i, l, r) for (int i = int(l); i < int(r); i++)
 #define correct(x, y, n, m) (0 <= (x) && (x) < (n) && 0 <= (y) && (y) < (m))
-#define all(a) (a).begin(), (a).end()
+#define all(a) begin(a), end(a)
 #define sz(a) int((a).size())
 #define pb(a) push_back(a)
 #define mp(x, y) make_pair((x), (y))
@@ -96,9 +96,35 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int n, c; cin >> n >> c;
+
+	vi a(n + 2);
+	forn(i, n - 1) {
+		cin >> a[i + 2];
+	}
+	vi b(n + 2);
+	forn(i, n - 1) {
+		cin >> b[i + 2];
+	}
 	
+	vector<vi> dp(2, vi(n + 2, INF));
+	dp[0][1] = 0; //stairs
+	dp[1][1] = c; //lift
+	fore(i, 2, n + 1) {
+		dp[0][i] = min(dp[0][i], dp[0][i - 1] + a[i]);
+		dp[0][i] = min(dp[0][i], dp[1][i - 1] + a[i]);
+		dp[1][i] = min(dp[1][i], dp[0][i - 1] + b[i] + c);
+		dp[1][i] = min(dp[1][i], dp[1][i - 1] + b[i]);
+	}
+
+	fore(i, 1, n+1) {
+		cout << min(dp[0][i], dp[1][i]) << " ";
+	}
+
 	return 0;
 }
