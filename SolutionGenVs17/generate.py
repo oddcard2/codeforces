@@ -12,6 +12,7 @@ PROJECTS_CONFIG_LIST_TEMPLATE_FILE = 'project_configurations.template'
 CLEAN_BATCH_FILE = 'clean.bat'
 BITS_DIR = 'bits'
 PROJECT_DIR = 'Project'
+APPS_DIR = 'Apps'
 
 def get_uuid():
     return str(uuid.uuid4()).upper()
@@ -74,6 +75,9 @@ def copy_files_tree(dest, project_names):
         src_bits = os.path.join(SOURCE_PATH, BITS_DIR)
         dest_bits = os.path.join(dest, BITS_DIR)
         shutil.copytree(src_bits, dest_bits)
+        
+        dest_apps = os.path.join(dest, APPS_DIR)
+        os.makedirs(dest_apps)
         
         for name in project_names:
             src_proj_dir = os.path.join(SOURCE_PATH, PROJECT_DIR)
