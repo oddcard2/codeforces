@@ -95,10 +95,81 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 #endif
 
 ////////////
+int n, k;
+vector<int> a;
+vector<int> used;
+vector<vector<int>> g;
+
+int dp[210][210] = { 0 };
+
+function<void(int, int)> dfs = [&](int v, int p) {
+	used[v] = 1;
+
+	for (auto u : g[v]) {
+		if (used[u])
+			continue;
+
+		dfs(u, v);
+	}
+
+	for (int d = k; d >= 1; d--) {
+		int best = 0;
+		for (int j = 0; j < sz(g[v]); j++) {
+			if (g[v][j] == p)
+				continue;
+
+			int val = dp[g[v][j]][d-1];
+			for (int h = 0; h < sz(g[v]); h++) {
+				if (j == h || g[v][h] == p) continue;
+
+				int dep = max(d-1, k - (d + 1));
+				val += dp[g[v][h]][dep];
+			}
+			if (val > best) {
+				best = val;
+			}
+		}
+		dp[v][d] = max(best, dp[v][d+1]);
+	}
+	if (v == 0)
+		v = 0;
+	dp[v][0] = a[v];
+	for (int j = 0; j < sz(g[v]); j++) {
+		if (g[v][j] == p)
+			continue;
+
+		dp[v][0] += dp[g[v][j]][k-1];
+	}
+	dp[v][0] = max(dp[v][0], dp[v][1]);
+	debug(v, dp[v][0]);
+};
+
 
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	cin >> n >> k;
+
+	k++;
+	a.resize(n);
+	used.resize(n);
+	g.resize(n);
+
+	forn(i, n) {
+		cin >> a[i];
+	}
+	forn(i, n - 1) {
+		int u, v;
+		cin >> u >> v;
+
+		g[u - 1].push_back(v - 1);
+		g[v - 1].push_back(u - 1);
+	}
+
+	dfs(0, -1);
+
+	cout << dp[0][0];
 	
 	return 0;
 }
