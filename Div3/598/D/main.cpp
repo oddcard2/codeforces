@@ -99,6 +99,45 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int q; cin >> q;
+	
+	forn(zz, q) {
+		ll n, k; cin >> n >> k;
+		string s;
+		cin >> s;
+		
+		set<int> p0;
+		set<int> p1;
+
+		ll first = 0;
+		while (s[first] == '0')
+			first++;
+		for (int i = first; i < n; ++i) {
+			if (s[i] == '0') {
+				p0.insert(i);
+			}
+			else {
+				p1.insert(i);
+			}
+		}
+
+		while (k && sz(p1) && sz(p0)) {
+			int pos1 = *p1.begin();
+			int pos0 = *p0.begin();
+			assert(pos0 > pos1);
+
+			ll newpos = max(pos0 - k, (ll)pos1);
+			k -= (pos0 - newpos);
+
+			p1.erase(pos1);
+			p0.erase(pos0);
+			p1.insert(pos0);
+			swap(s[pos0], s[newpos]);
+		}
+
+		cout << s << '\n';
+	}
 	
 	return 0;
 }

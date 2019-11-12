@@ -99,6 +99,53 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int n; cin >> n;
+	vector<pli> v(n);
+	forn(i, n) {
+		ll a; cin >> a;
+		v[i] = { a, i };
+	}
+
+	sort(all(v));
+
+	vll dp(n);
+	vll st(n);
+
+	forn(i, min(5,n)) {
+		dp[i] = v[i].first - v[0].first;
+		st[i] = 0;
+	}
+	fore(i, 5, n) {
+		ll dp1 = dp[i - 1] + (v[i].first - v[i - 1].first);
+		ll dp2 = dp[i - 3] + (v[i].first - v[i - 2].first);
+		if (dp2 < dp1) {
+			st[i] = 1;
+		}
+		dp[i] = min(dp1, dp2);
+	}
+
+	int cnt = 1;
+	vi ans(n);
+	ford(i, n) {
+		if (st[i]) {
+			forn(j, 3) {
+				ans[v[i - j].second] = cnt;
+			}
+			i -= 2;
+			cnt++;
+		}
+		else {
+			ans[v[i].second] = cnt;
+		}
+	}
+
+	int maxk = ans[v[0].second];
+
+	cout << dp[n - 1] << " " << maxk << '\n';
+	forn(i, n) {
+		cout << ans[i] << " ";
+	}
 	
 	return 0;
 }
