@@ -96,9 +96,170 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+//addition on segment
+//stores sum and max
+struct seg_tree {
+	struct node { ///
+		int val;
+		int ad = 0;
+		int maxv;
+
+		//assigns new value to the segment node
+		void apply(int tl, int tr, int v) {
+			ad += v;
+			val += v * (tr - tl + 1);
+
+			if (tl == tr)
+				maxv = val;
+			else
+				maxv += v;
+		}
+	};
+
+	node unite(const node &a, const node &b) const {
+		node res;
+		res.val = a.val + b.val;
+		res.maxv = max(a.maxv, b.maxv);
+		return res;
+	}
+
+	void push(int v, int tl, int tr) { ///
+		if (tree[v].ad != 0) {
+			int tm = (tl + tr) / 2;
+			tree[v * 2].apply(tl, tm, tree[v].ad);
+			tree[v * 2 + 1].apply(tm + 1, tr, tree[v].ad);
+			tree[v].ad = 0;
+		}
+	}
+
+	void pull(int v) { //combines results from sons to parent
+		tree[v] = unite(tree[v * 2], tree[v * 2 + 1]);
+	}
+
+	template<typename T>
+	void build(const vector<T>& a) {
+		n = (int)a.size();
+		tree.resize(4 * n);
+		build(1, 0, n - 1, a);
+	}
+
+	template<typename T>
+	void build(int v, int tl, int tr, const vector<T>& a) {
+		if (tl == tr)
+			tree[v].apply(tl, tr, a[tl]);
+		else {
+			int tm = (tl + tr) / 2;
+			build(v * 2, tl, tm, a);
+			build(v * 2 + 1, tm + 1, tr, a);
+			pull(v);
+		}
+	}
+
+	node get(int v, int tl, int tr, int l, int r) {
+		if (l <= tl && r >= tr) {
+			return tree[v];
+		}
+		push(v, tl, tr);
+		node res{};
+		int tm = (tl + tr) / 2;
+
+		if (r <= tm) {
+			res = get(2 * v, tl, tm, l, r);
+		}
+		else {
+			if (l > tm) {
+				res = get(2 * v + 1, tm + 1, tr, l, r);
+			}
+			else {
+				res = unite(get(2 * v, tl, tm, l, r), get(2 * v + 1, tm + 1, tr, l, r));
+			}
+		}
+		pull(v);
+		return res;
+	}
+
+
+	node get(int l, int r) {
+		return get(1, 0, n - 1, l, r);
+	}
+
+	node get(int pos) {
+		return get(1, 0, n - 1, pos, pos);
+	}
+
+	//v - current tree node
+	//l,r - required range
+	//tl,tr - current tree node range
+	template <typename... M>
+	void update(int v, int tl, int tr, int l, int r, const M&... d) {
+		if (l > r)
+			return;
+		if (l <= tl && r >= tr)
+			tree[v].apply(tl, tr, d...);
+		else {
+			push(v, tl, tr);
+			int tm = (tl + tr) / 2;
+			if (l <= tm)
+				update(v * 2, tl, tm, l, r, d...);
+			if (r > tm)
+				update(v * 2 + 1, tm + 1, tr, l, r, d...);
+			pull(v);
+		}
+	}
+
+	template <typename... M>
+	void update_range(int l, int r, const M&... v) {
+		update(1, 0, n - 1, l, r, v...);
+	}
+
+	template <typename... M>
+	void update(int pos, const M&... v) {
+		update(1, 0, n - 1, pos, pos, v...);
+	}
+
+	int n;
+	vector<node> tree;
+};
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int n,k; cin >> n>>k;
 	
+	vector<tri> v(n);
+	vi op(n);
+	vi cl(n);
+
+	int mx = 0;
+	forn(i, n) {
+		int l, r; cin >> l >> r;
+		v[i] = { r-1,-(r-l),i };
+		mx = max(r - 1, mx);
+	}
+
+	sort(all(v));
+
+	vi b(mx+1);
+	seg_tree t;
+	t.build(b);
+	
+	vi res;
+	forn(i, sz(v)) {
+		int r, s, j;
+		tie(r, s, j) = v[i];
+		auto a = t.get(r + s, r);
+		if (a.maxv >= k) {
+			res.push_back(j);
+			continue;
+		}
+		t.update_range(r + s, r, 1);
+	}
+	
+	cout << sz(res) << '\n';
+	forn(i, sz(res)) {
+		cout << res[i]+1 << ' ';
+	}
+
 	return 0;
 }
