@@ -96,9 +96,124 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+//http://e-maxx.ru/algo/fenwick_tree
+//SUM with modifications
+/***********************/
+template<typename T>
+struct fenwick_tree
+{
+	vector<T> t;
+	int n;
+
+	fenwick_tree(int nn)
+	{
+		n = nn;
+		t.assign(n, T(0));
+	}
+
+	fenwick_tree(const vector<T>& a) : fenwick_tree((int)a.size())
+	{
+		for (auto i = 0; i < a.size(); i++)
+			inc(i, a[i]);
+	}
+
+	//i is range [0,n-1], calc for [0,r]
+	T sum(int r)
+	{
+		T result = 0;
+		for (; r >= 0; r = (r & (r + 1)) - 1)
+			result += t[r];
+		return result;
+	}
+
+	//i is range [0,n-1]
+	void inc(int i, T delta)
+	{
+		for (; i < n; i = (i | (i + 1)))
+			t[i] += delta;
+	}
+
+	//l,r is range [0,n-1]
+	//calcs for [l,r]
+	T sum(int l, int r)
+	{
+		return sum(r) - sum(l - 1);
+	}
+};
+/***********************/
+
+int perm_inv_count(const vi& a) {
+	int cnt = 0;
+
+	fenwick_tree<int> t((int)a.size());
+	for (int i = 1; i < (int)a.size(); i++) {
+		cnt += (a[i] - 1) - t.sum(a[i] - 1);
+		t.inc(a[i], 1);
+	}
+	return cnt;
+}
+
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
+
+	int q; cin >> q;
+
+	forn(zz, q) {
+		int n; cin >> n;
+
+		string s, t;
+		cin >> s; cin >> t;
+
+		int sn[26] = { 0 };
+		int tn[26] = { 0 };
+
+		forn(i, n) {
+			sn[s[i] - 'a']++;
+			tn[t[i] - 'a']++;
+		}
+
+		bool dup = false;
+		bool ok = true;
+		forn(i, 26) {
+			if (sn[i] != tn[i]) {
+				ok = false;
+				break;
+			}
+			if (sn[i] > 1) {
+				dup = true;
+			}
+		}
+
+		if (dup && ok) {
+			cout << "YES\n";
+			continue;
+		}
+		if (!ok) {
+			cout << "NO\n";
+			continue;
+		}
+
+		int ids[26];
+		int id = 1;
+		forn(i, 26) {
+			if (sn[i]) {
+				ids[i] = id++;
+			}
+		}
+
+		vi perm1(n + 1);
+		vi perm2(n + 1);
+		forn(i, n) {
+			perm1[i + 1] = ids[s[i] - 'a'];
+			perm2[i + 1] = ids[t[i] - 'a'];
+		}
+
+		if ((perm_inv_count(perm1) % 2) != (perm_inv_count(perm2) % 2))
+			cout << "NO\n";
+		else
+			cout << "YES\n";
+	}
 	
 	return 0;
 }
