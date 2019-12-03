@@ -96,6 +96,43 @@ void _print(T t, V... v) { __print(t); if (sizeof...(v)) cerr << ", "; _print(v.
 
 ////////////
 
+#if 1 // O(1) from 
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+
+	int n, k;
+	string s;
+	cin >> n >> k >> s;
+
+	vi mlr(n, -1);
+	int lst = -1;
+	forn(i, n) {
+		if (s[i] == '1') {
+			for (int j = lst + 1; j < min(n, i + k + 1); j++) {
+				mlr[j] = i;
+			}
+			lst = i + k;
+		}
+	}
+	
+	vll dp(n+1, INF64);
+	dp[n] = 0;
+
+	ford(i, n) {
+		dp[i] = min(dp[i], dp[i + 1] + (i + 1));
+		if (mlr[i] != -1) {
+			int ps = max(0, mlr[i] - k);
+			dp[ps] = min(dp[ps], dp[i + 1] + mlr[i] + 1);
+		}
+	}
+
+	cout << dp[0];
+	return 0;
+}
+
+
+#else // my solution
 ll progress_sum(ll a0, int d, int n) {
 	ll an = a0 + d * (n - 1);
 	return (a0 + an)*n / 2;
@@ -194,3 +231,5 @@ int main() {
 	
 	return 0;
 }
+
+#endif
